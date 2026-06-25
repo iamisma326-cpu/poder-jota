@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poder Jota — Fitness y Fútbol Particular en Lima, Perú</title>
+  <meta name="description" content="Poder Jota: asesoramiento fitness y entrenamiento de fútbol particular para hombres en Lima, Perú. Fitness para adolescentes y adultos. Fútbol para niños y adultos." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/animaciones.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <!-- Anime.js para todas las animaciones (cargado vía CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" defer></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/ScrollTrigger.min.js" defer></script>
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.0/dist/lenis.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR (compartido) ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html" class="active">Inicio</a>
+        <a href="fitness.html">Fitness</a>
+        <a href="futbol.html">Fútbol</a>
+        <a href="campus.html">Campus</a>
+        <a href="precios.html">Precios</a>
+        <a href="contacto.html" class="nav__cta--shine">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero__bg">
+      <img src="https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Cancha de fútbol al atardecer" loading="eager" />
+    </div>
+    <div class="hero__content">
+      <span class="eyebrow" data-hero>Fe · Disciplina · Poder</span>
+      <h1 class="display hero__title" data-hero>
+        Despierta tu <em>poder</em>,<br />
+        levanta tu <b>juego</b>.
+      </h1>
+      <p class="lead hero__sub" data-hero>
+        Asesoramiento fitness y entrenamiento de fútbol particular en Lima, Perú.
+        Creemos que el cuerpo es templo del Espíritu Santo (1 Corintios 6:19).
+        Por eso entrenamos con disciplina, propósito y fe. Exclusivo para hombres.
+      </p>
+      <div class="hero__actions" data-hero>
+        <a href="contacto.html" class="btn btn--primary">Entrena con Jota <span class="arrow">→</span></a>
+        <a href="#servicios" class="btn btn--ghost">Ver servicios</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Franja firma -->
+  <div class="signature-band" aria-hidden="true"></div>
+
+  <!-- ============ PRESENTACIÓN ============ -->
+  <section class="section" id="presentacion">
+    <div class="container grid" style="gap: var(--sp-5);">
+      <div data-reveal>
+        <span class="eyebrow">Quiénes somos</span>
+        <h2 class="display h1" style="margin-top: var(--sp-1);">Poder Jota</h2>
+        <p class="lead" style="margin-top: var(--sp-2);">
+          Somos un emprendimiento peruano fundado en la fe en Cristo Jesús.
+          Creemos que el cuerpo y el fútbol son instrumentos para honrar a Dios
+          y construir una vida con propósito. Combinamos ciencia del entrenamiento,
+          experiencia de cancha y acompañamiento cercano, sabiendo que todo lo podemos
+          en Cristo que nos fortalece (Filipenses 4:13).
+        </p>
+      </div>
+      <div class="values-grid" id="valuesGrid">
+        <div class="value-item">
+          <span class="value-item__num">01</span>
+          <div>
+            <h3 class="h3">Misión</h3>
+            <p style="color: var(--gris-300);">Formar hombres de bien a través del deporte, guiados por principios cristianos, entrenando el cuerpo como templo del Espíritu Santo.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <span class="value-item__num">02</span>
+          <div>
+            <h3 class="h3">Visión</h3>
+            <p style="color: var(--gris-300);">Ser reconocidos como un referente de excelencia deportiva con valores cristianos, donde cada hombre descubra su potencial físico y espiritual.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <span class="value-item__num">03</span>
+          <div>
+            <h3 class="h3">Propósito</h3>
+            <p style="color: var(--gris-300);">Glorificar a Dios a través del deporte, encendiendo en cada hombre la disciplina, la fe y el carácter de Cristo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NUESTRA FE (Pilares) ============ -->
+  <section class="section" style="background: var(--negro);">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Nuestra fe</span>
+        <h2 class="display h1">Lo que creemos</h2>
+        <p class="lead" style="margin-inline:auto;">Poder Jota no es solo un emprendimiento deportivo. Es un ministerio que entrena cuerpo y espíritu para la gloria de Dios.</p>
+      </div>
+      <div class="faith-pillars" id="faithPillars">
+        <!-- Pilar 1: Cristo -->
+        <div class="pillar">
+          <div class="pillar__icon">
+            <i class="ph-duotone ph-cross" style="font-size: 36px;"></i>
+          </div>
+          <div class="pillar__content">
+            <h3>Cristo es el centro</h3>
+            <p>Todo lo que hacemos es para honrar a Dios. Nuestro talento, nuestra fuerza y nuestra disciplina vienen de Él y a Él se los dedicamos.</p>
+          </div>
+        </div>
+        <!-- Pilar 2: Templo -->
+        <div class="pillar">
+          <div class="pillar__icon">
+            <i class="ph-duotone ph-church" style="font-size: 36px;"></i>
+          </div>
+          <div class="pillar__content">
+            <h3>El cuerpo es templo</h3>
+            <p>Creemos firmemente que el cuerpo es templo del Espíritu Santo (1 Corintios 6:19). Por eso lo entrenamos con respeto, cuidado y excelencia.</p>
+          </div>
+        </div>
+        <!-- Pilar 3: Disciplina -->
+        <div class="pillar">
+          <div class="pillar__icon">
+            <i class="ph-duotone ph-heart" style="font-size: 36px;"></i>
+          </div>
+          <div class="pillar__content">
+            <h3>Disciplina con propósito</h3>
+            <p>"Toda disciplina al momento no es causa de gozo, sino de tristeza; pero después da fruto apacible de justicia" (Hebreos 12:11). Entrenamos para esta vida y la eternidad.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDER DE TEXTO (Anime.js) ============ -->
+  <div class="signature-band" aria-hidden="true" style="opacity:0.3;"></div>
+  <section class="section bg-darker">
+    <div class="container text-slider" id="textSlider" data-reveal>
+      <span class="eyebrow text-center" style="display:block;">Palabra de poder</span>
+      <div class="text-slider__viewport" id="sliderViewport" aria-live="polite">
+        <div class="text-slide is-active">
+          <p class="display h1">"Todo lo puedo en Cristo que me <b style="color:var(--lima-voltio);">fortalece.</b>" <span style="font-family:var(--font-body); font-size:0.4em; display:block; margin-top:0.5rem; color:var(--gris-300);">— Filipenses 4:13</span></p>
+        </div>
+        <div class="text-slide">
+          <p class="display h1">"Vuestro cuerpo es <em style="color:var(--amarillo-oro);">templo del Espíritu Santo.</em>" <span style="font-family:var(--font-body); font-size:0.4em; display:block; margin-top:0.5rem; color:var(--gris-300);">— 1 Corintios 6:19</span></p>
+        </div>
+        <div class="text-slide">
+          <p class="display h1">"Corred de tal manera que <b style="color:var(--lima-voltio);">obtengáis el premio.</b>" <span style="font-family:var(--font-body); font-size:0.4em; display:block; margin-top:0.5rem; color:var(--gris-300);">— 1 Corintios 9:24</span></p>
+        </div>
+        <div class="text-slide">
+          <p class="display h1">"El Señor es mi fortaleza y mi <em style="color:var(--amarillo-oro);">escudo.</em>" <span style="font-family:var(--font-body); font-size:0.4em; display:block; margin-top:0.5rem; color:var(--gris-300);">— Salmo 28:7</span></p>
+        </div>
+        <div class="text-slide">
+          <p class="display h1">"Dios no nos ha dado un <b style="color:var(--lima-voltio);">espíritu de cobardía,</b> sino de poder." <span style="font-family:var(--font-body); font-size:0.4em; display:block; margin-top:0.5rem; color:var(--gris-300);">— 2 Timoteo 1:7</span></p>
+        </div>
+      </div>
+      <div class="text-slider__dots" id="sliderDots" role="tablist" aria-label="Selector de frases"></div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICIOS (intro + CTA) ============ -->
+  <section class="section" id="servicios">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Dos caminos, un poder</span>
+        <h2 class="display h1">Elige tu disciplina</h2>
+        <p class="lead" style="margin-inline:auto;">No es gimnasio genérico ni entrenamiento cualquiera. Poder Jota te acompaña, mide y ajusta cada paso.</p>
+      </div>
+
+      <!-- Tarjetas de servicio lado a lado -->
+      <div class="grid cards-grid-2" id="serviceCards" style="margin-top: var(--sp-5);">
+
+        <!-- Servicio Fitness -->
+        <article class="service-card">
+          <div class="service-card__icon service-card__icon--fitness">
+            <img src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782243708/WhatsApp_Image_2026-06-23_at_13.44.31-removebg-preview_1_cd5fhm.png" alt="Icono de asesoramiento fitness Poder Jota" width="96" height="96" loading="lazy" />
+          </div>
+          <span class="service-card__tag">Fitness</span>
+          <h2 class="h2">Asesoramiento Fitness</h2>
+          <p class="lead" style="margin-top: var(--sp-1);">Planes de fuerza, composición corporal y hábitos saludables con seguimiento personal. Rutinas reales para tu cuerpo real, ajustadas a tu tiempo y tu equipo disponible.</p>
+          <p style="color: var(--lima-voltio); font-weight: 600; margin-top: var(--sp-1);">Exclusivo para adolescentes y adultos hombres.</p>
+          <ul class="service-card__features">
+            <li>Rutina personalizada y revisión quincenal</li>
+            <li>Guía de nutrición basada en objetivos</li>
+            <li>Sesiones presenciales personalizadas</li>
+          </ul>
+          <a href="fitness.html" class="btn btn--primary service-card__cta">Ver más <span class="arrow">→</span></a>
+        </article>
+
+        <!-- Servicio Fútbol -->
+        <article class="service-card service-card--futbol">
+          <div class="service-card__icon service-card__icon--futbol">
+            <img src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782243628/WhatsApp_Image_2026-06-23_at_13.44.36-removebg-preview_byvzcg.png" alt="Icono de entrenamiento de fútbol Poder Jota" width="96" height="96" loading="lazy" />
+          </div>
+          <span class="service-card__tag service-card__tag--futbol">Fútbol</span>
+          <h2 class="h2">Entrenamiento de Fútbol</h2>
+          <p class="lead" style="margin-top: var(--sp-1);">Sesiones particulares de técnica individual, toma de decisiones y condición específica para que tu fútbol crezca de verdad.</p>
+          <p style="color: var(--rojo-bandera); font-weight: 600; margin-top: var(--sp-1);">Para niños y adultos. Exclusivo para hombres.</p>
+          <ul class="service-card__features">
+            <li>Diagnóstico técnico-táctico inicial</li>
+            <li>Trabajo individual y de pequeño grupo</li>
+            <li>Plan de progresión por ciclos</li>
+          </ul>
+          <a href="futbol.html" class="btn btn--red service-card__cta">Ver más <span class="arrow">→</span></a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATS / IMPACTO (rediseñado con contador Anime.js) ============ -->
+  <section class="section" id="stats">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Impacto</span>
+        <h2 class="display h1">Resultados que hablan</h2>
+        <p class="lead" style="margin-inline:auto;">Números que respaldan cada sesión, cada plan y cada persona que entrena con nosotros.</p>
+      </div>
+      <div class="stats-grid" id="heroStatsGrid">
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph-fill ph-users" style="font-size: 28px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="200">0</div>
+          <div class="stat-card__label">Personas entrenadas</div>
+          <p class="stat-card__desc">Hombres que han transformado su cuerpo y su juego</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph-fill ph-star" style="font-size: 28px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="5" data-suffix="★">0</div>
+          <div class="stat-card__label">Satisfacción</div>
+          <p class="stat-card__desc">Valoración promedio de nuestros clientes</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph-fill ph-clipboard-text" style="font-size: 28px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="100" data-suffix="%">0</div>
+          <div class="stat-card__label">Planes personalizados</div>
+          <p class="stat-card__desc">Cada plan se diseña exclusivamente para ti</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph-fill ph-clock" style="font-size: 28px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="24" data-suffix="/7">0</div>
+          <div class="stat-card__label">Compromiso</div>
+          <p class="stat-card__desc">Fe y disciplina en acción, siempre contigo</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIOS ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Confianza</span>
+        <h2 class="display h1">Lo que dice la poderosa familia</h2>
+      </div>
+      <div class="grid cards-grid" id="testimonialsGrid" style="grid-template-columns: 1fr;">
+        <div class="testimonial">
+          <blockquote>"En tres meses cambié mi composición corporal y la forma en que veo el entrenamiento. Jota te entiende y te empuja sin atajos."</blockquote>
+          <cite>Carlos Fernández <small>Lima · Fitness</small></cite>
+        </div>
+        <div class="testimonial">
+          <blockquote>"Mi hijo mejoró su control y su confianza en la cancha. Lo que más valoro es que Jota trabaja la cabeza, no solo el balón."</blockquote>
+          <cite>Carlos Quiroz <small>Lima · Fútbol</small></cite>
+        </div>
+        <div class="testimonial">
+          <blockquote>"No solo mejoré mi cuerpo, también mi relación con Dios. Jota entrena con alma, no solo con pesas. Esto es más que un gimnasio, es una hermandad en Cristo."</blockquote>
+          <cite>Carlos Mendoza <small>Lima · Fitness</small></cite>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DESPEDIDA (split: imagen izquierda + mensaje) ============ -->
+  <section class="section farewell" id="farewell">
+    <div class="container farewell__layout">
+      <div class="farewell__media" aria-hidden="true">
+        <img src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782353003/f4bcedb6__7e330fa8-ba65-450a-b9c6-8bd1352e63cd_enhanced_1_j6ixjd.jpg" alt="" loading="lazy" />
+      </div>
+      <div class="farewell__content">
+        <div class="farewell__inner">
+          <span class="eyebrow" style="color:var(--amarillo-oro);">Hasta la próxima</span>
+          <h2 class="display farewell__title">
+            No es el final,<br />
+            es tu <em>comienzo</em>.
+          </h2>
+          <p class="lead farewell__text">
+            El entrenamiento empieza cuando decides moverte.
+            La disciplina construye al hombre. La fe lo sostiene.
+          </p>
+          <p class="farewell__verse">
+            « Todo lo puedo en Cristo que me fortalece »
+            <span class="farewell__ref">Filipenses 4:13</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DOBLE CTA FINAL (Campus + Contacto fusionados) ============ -->
+  <section class="section bg-darker">
+    <div class="container" data-reveal>
+      <div class="final-cta-grid cta-final">
+        <div class="final-cta__item">
+          <h2 class="display h2">Campus <em style="color:var(--amarillo-oro);">Poder Jota</em></h2>
+          <p class="lead" style="margin-top: var(--sp-1);">
+            Cursos digitales de fitness para hombres. Entrena a tu ritmo, donde quieras.
+          </p>
+          <a href="campus.html" class="btn btn--ghost" style="margin-top: var(--sp-2);">
+            Conoce los cursos <span class="arrow">→</span>
+          </a>
+        </div>
+        <div class="final-cta__divider" aria-hidden="true"></div>
+        <div class="final-cta__item">
+          <h2 class="display h2">¿List@ para activar tu <em style="color:var(--amarillo-oro);">poder</em>?</h2>
+          <p class="lead" style="margin-top: var(--sp-1);">Cuéntame tu objetivo y armamos tu plan.</p>
+          <a href="contacto.html" class="btn btn--primary" style="margin-top: var(--sp-2);">
+            Contáctame por WhatsApp <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER (compartido) ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col">
+          <a href="index.html" class="brand"><img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" /><span>Poder<b>Jota</b></span></a>
+          <p class="footer__brand-text">Fitness y fútbol particular con principios cristianos. Para adolescentes y adultos hombres. Fútbol para niños y adultos. Exclusivo para hombres. Solo en Lima, Perú.</p>
+          <div class="footer__social" aria-label="Redes sociales">
+            <a href="https://www.instagram.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" width="20" height="20" /></a>
+            <a href="https://www.tiktok.com/@poderjota" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" width="20" height="20" /></a>
+            <a href="https://www.facebook.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="https://cdn.simpleicons.org/facebook/ffffff" alt="Facebook" width="20" height="20" /></a>
+            <a href="https://wa.me/51922375598" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="WhatsApp" width="20" height="20" /></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Servicios</h4>
+          <a href="fitness.html">Asesoramiento Fitness</a>
+          <a href="futbol.html">Fútbol Particular</a>
+          <a href="campus.html">Campus Poder Jota</a>
+          <a href="precios.html">Planes y precios</a>
+        </div>
+        <div class="footer__col">
+          <h4>Empresa</h4>
+          <a href="index.html#presentacion">Quiénes somos</a>
+          <a href="index.html#servicios">Servicios</a>
+          <a href="index.html#presentacion">Misión</a>
+        </div>
+        <div class="footer__col">
+          <h4>Contacto</h4>
+          <a href="tel:+51922375598">+51 922 375 598</a>
+          <a href="#">Parque San Cristóbal, Lima, Perú</a>
+          <a href="contacto.html">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        © <span id="year"></span> Poder Jota · Hecho en Perú con disciplina, fe y movimiento. · <a href="pl/plan_correccion_poder_jota.md" style="color:var(--gris-500);font-size:0.75rem;">@pl/plan_correccion_poder_jota.md</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+  <script src="js/animations-gsap.js"></script>
+</body>
+</html>

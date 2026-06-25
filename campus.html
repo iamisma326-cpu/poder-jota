@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Poder Jota — Cursos Digitales de Fitness</title>
+  <meta name="description" content="Campus Poder Jota: cursos digitales de fitness para hombres. Regístrate gratis, accede a cursos de paga y entrena a tu ritmo. Próximamente." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/animaciones.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" defer></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/ScrollTrigger.min.js" defer></script>
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.0/dist/lenis.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="fitness.html">Fitness</a>
+        <a href="futbol.html">Fútbol</a>
+        <a href="campus.html" class="active">Campus</a>
+        <a href="precios.html">Precios</a>
+        <a href="contacto.html" class="nav__cta--shine">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO CAMPUS ============ -->
+  <section class="hero" style="min-height: 80vh;">
+    <div class="hero__bg">
+      <img src="https://images.pexels.com/photos/19722863/pexels-photo-19722863.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Hombre entrenando con barra en el gimnasio" loading="eager" />
+    </div>
+    <div class="hero__content">
+      <span class="eyebrow" data-hero>Próximamente</span>
+      <h1 class="display hero__title" data-hero>
+        Campus <em>Poder</em><br />
+        <b>Jota</b>
+      </h1>
+      <p class="lead hero__sub" data-hero>
+        Cursos digitales de fitness diseñados por Jota.
+        Entrena cuando quieras, donde quieras.
+        Próximamente disponible.
+      </p>
+      <div class="hero__actions" data-hero>
+        <a href="contacto.html" class="btn btn--primary">Quiero ser el primero <span class="arrow">→</span></a>
+        <a href="#cursos" class="btn btn--ghost">Ver más</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="signature-band" aria-hidden="true"></div>
+
+  <!-- ============ CURSOS ============ -->
+  <section class="section" id="cursos">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Cursos digitales</span>
+        <h2 class="display h1">Así funciona</h2>
+        <p class="lead" style="margin-inline:auto;">
+          Regístrate gratis, compra el curso que necesites y entrena a tu ritmo.
+          Contenido progresivo: de principiante a avanzado.
+        </p>
+      </div>
+
+      <div class="campus-steps" id="campusSteps">
+        <div class="campus-step">
+          <div class="campus-step__num" data-target="1">00</div>
+          <div class="campus-step__card">
+            <div class="campus-step__icon">
+              <i class="ph-bold ph-file-text" style="font-size: 28px;"></i>
+            </div>
+            <h3>Regístrate gratis</h3>
+            <p>Crea tu cuenta gratuita. Sin compromiso, sin tarjeta. Solo necesitas tu correo y empiezas.</p>
+          </div>
+        </div>
+
+        <div class="campus-step">
+          <div class="campus-step__num" data-target="2">00</div>
+          <div class="campus-step__card">
+            <div class="campus-step__icon">
+              <i class="ph-bold ph-clock" style="font-size: 28px;"></i>
+            </div>
+            <h3>Accede a cursos</h3>
+            <p>Compra el curso que necesites y accede de por vida. Contenido progresivo: de principiante a avanzado.</p>
+          </div>
+        </div>
+
+        <div class="campus-step">
+          <div class="campus-step__num" data-target="3">00</div>
+          <div class="campus-step__card">
+            <div class="campus-step__icon">
+              <i class="ph-bold ph-pulse" style="font-size: 28px;"></i>
+            </div>
+            <h3>Entrena a tu ritmo</h3>
+            <p>Rutinas en video, guías descargables y planificación semanal. Fitness para hombres, desde casa o donde estés.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BANNER PRECIOS ============ -->
+  <section class="section">
+    <div class="container text-center" id="pricingBannerCampus">
+      <span class="eyebrow">Planes</span>
+      <h2 class="display h1" style="margin-top: var(--sp-1);">Elige tu <em style="color:var(--amarillo-oro);">curso</em></h2>
+      <p class="lead" style="margin-inline:auto; margin-top: var(--sp-2); max-width: 56ch;">
+        Todos los cursos del Campus Poder Jota están disponibles en nuestra página
+        de precios. Acceso de por vida, contenido progresivo y actualizaciones.
+      </p>
+      <a href="precios.html#campus" class="btn btn--primary" style="margin-top: var(--sp-3);">
+        Ver precios de cursos <span class="arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section bg-darker">
+    <div class="container" style="max-width: 800px;">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">FAQ</span>
+        <h2 class="display h1">Preguntas frecuentes</h2>
+      </div>
+      <div class="stack" id="faqStack" style="margin-top: var(--sp-4);">
+        <details class="card" style="padding: var(--sp-3); cursor: pointer;">
+          <summary style="font-weight: 700; font-size: 1.05rem; color: var(--crema-andina); cursor: pointer;">¿Cuándo estarán disponibles los cursos?</summary>
+          <p style="color: var(--gris-300); margin-top: var(--sp-2);">Actualmente estamos desarrollando el contenido. Si nos dejas tu correo, te avisaremos apenas lancemos la plataforma. No tenemos fecha exacta aún, pero queremos hacerlo bien antes de lanzar.</p>
+        </details>
+        <details class="card" style="padding: var(--sp-3); cursor: pointer;">
+          <summary style="font-weight: 700; font-size: 1.05rem; color: var(--crema-andina); cursor: pointer;">¿Necesito equipo especial o ir a un gimnasio?</summary>
+          <p style="color: var(--gris-300); margin-top: var(--sp-2);">No. Los cursos están diseñados para que puedas entrenar en casa con el equipo que tengas. Algunas rutinas usan peso corporal; otras pueden requerir mancuernas o ligas, pero siempre daremos alternativas según tu equipo disponible.</p>
+        </details>
+        <details class="card" style="padding: var(--sp-3); cursor: pointer;">
+          <summary style="font-weight: 700; font-size: 1.05rem; color: var(--crema-andina); cursor: pointer;">¿Los cursos son solo para hombres?</summary>
+          <p style="color: var(--gris-300); margin-top: var(--sp-2);">Sí, al igual que nuestro entrenamiento presencial, los cursos digitales están diseñados exclusivamente para hombres. El enfoque, el lenguaje y los objetivos están pensados para el público masculino.</p>
+        </details>
+        <details class="card" style="padding: var(--sp-3); cursor: pointer;">
+          <summary style="font-weight: 700; font-size: 1.05rem; color: var(--crema-andina); cursor: pointer;">¿Puedo acceder desde mi celular o tablet?</summary>
+          <p style="color: var(--gris-300); margin-top: var(--sp-2);">Sí. La plataforma será accesible desde cualquier dispositivo con internet: celular, tablet, laptop o computadora. Podrás ver los videos, descargar las guías y seguir tu plan desde donde estés.</p>
+        </details>
+        <details class="card" style="padding: var(--sp-3); cursor: pointer;">
+          <summary style="font-weight: 700; font-size: 1.05rem; color: var(--crema-andina); cursor: pointer;">¿Hay reembolso si no me gusta el curso?</summary>
+          <p style="color: var(--gris-300); margin-top: var(--sp-2);">Planeamos ofrecer una garantía de satisfacción. Los términos específicos los definiremos al lanzar la plataforma, pero nuestra prioridad es que te sientas respaldado en tu inversión.</p>
+        </details>
+        <details class="card" style="padding: var(--sp-3); cursor: pointer;">
+          <summary style="font-weight: 700; font-size: 1.05rem; color: var(--crema-andina); cursor: pointer;">¿Es lo mismo que el asesoramiento presencial?</summary>
+          <p style="color: var(--gris-300); margin-top: var(--sp-2);">No. El asesoramiento presencial es un servicio 1 a 1 con sesiones en vivo, corrección de técnica en tiempo real y plan cien por ciento personalizado. Los cursos digitales son contenido grabado que puedes seguir a tu ritmo, ideal si no estás en Lima o prefieres autonomía.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NOTA + CTA ============ -->
+  <section class="section bg-darker">
+    <div class="container text-center cta-final">
+      <h2 class="display h1">¿Listo para <em style="color:var(--amarillo-oro);">empezar</em>?</h2>
+      <p class="lead" style="margin-inline:auto; margin-top: var(--sp-2); max-width: 48ch;">
+        Actualmente atendemos entrenamiento presencial en Lima.
+        Los cursos digitales estarán disponibles próximamente.
+      </p>
+      <p style="color: var(--crema-andina); font-weight: 700; margin-top: var(--sp-2);">
+        Déjanos tu correo y te avisamos cuando lancemos.
+      </p>
+      <a href="contacto.html" class="btn btn--primary" style="margin-top: var(--sp-3);">
+        Quiero ser el primero en enterarme <span class="arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col">
+          <a href="index.html" class="brand"><img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" /><span>Poder<b>Jota</b></span></a>
+          <p class="footer__brand-text">Fitness y fútbol particular con principios cristianos. Para adolescentes y adultos hombres. Fútbol para niños y adultos. Exclusivo para hombres. Solo en Lima, Perú.</p>
+          <div class="footer__social" aria-label="Redes sociales">
+            <a href="https://www.instagram.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" width="20" height="20" /></a>
+            <a href="https://www.tiktok.com/@poderjota" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" width="20" height="20" /></a>
+            <a href="https://www.facebook.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="https://cdn.simpleicons.org/facebook/ffffff" alt="Facebook" width="20" height="20" /></a>
+            <a href="https://wa.me/51922375598" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="WhatsApp" width="20" height="20" /></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Servicios</h4>
+          <a href="fitness.html">Asesoramiento Fitness</a>
+          <a href="futbol.html">Fútbol Particular</a>
+          <a href="campus.html">Campus Poder Jota</a>
+          <a href="precios.html">Planes y precios</a>
+        </div>
+        <div class="footer__col">
+          <h4>Empresa</h4>
+          <a href="index.html">Inicio</a>
+          <a href="index.html#presentacion">Quiénes somos</a>
+          <a href="contacto.html">Contacto</a>
+        </div>
+        <div class="footer__col">
+          <h4>Contacto</h4>
+          <a href="tel:+51922375598">+51 922 375 598</a>
+          <a href="#">Parque San Cristóbal, Lima, Perú</a>
+          <a href="contacto.html">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        © <span id="year"></span> Poder Jota · Hecho en Perú con disciplina, fe y movimiento. · <a href="pl/plan_correccion_poder_jota.md" style="color:var(--gris-500);font-size:0.75rem;">@pl/plan_correccion_poder_jota.md</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+  <script src="js/animations-gsap.js"></script>
+</body>
+</html>

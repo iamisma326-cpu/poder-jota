@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrenamiento de Fútbol — Poder Jota</title>
+  <meta name="description" content="Entrenamiento de fútbol particular en Lima, Perú: técnica, toma de decisiones y condición específica para niños y adultos. Exclusivo para hombres." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animaciones.css" />
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782243628/WhatsApp_Image_2026-06-23_at_13.44.36-removebg-preview_byvzcg.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" defer></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/ScrollTrigger.min.js" defer></script>
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.0/dist/lenis.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="fitness.html">Fitness</a>
+        <a href="futbol.html" class="active">Fútbol</a>
+        <a href="campus.html">Campus</a>
+        <a href="precios.html">Precios</a>
+        <a href="contacto.html" class="nav__cta--shine">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO FÚTBOL (composición diferenciada) ============ -->
+  <section class="hero hero--futbol">
+    <div class="hero__bg">
+      <img src="https://images.pexels.com/photos/30666125/pexels-photo-30666125.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Jugadores de fútbol en acción bajo las luces del estadio" loading="eager" />
+    </div>
+    <div class="hero__content">
+      <span class="eyebrow" data-hero>Entrenamiento de Fútbol</span>
+      <h1 class="display hero__title" data-hero>
+        Tu football<br />
+        con <em>técnica</em> de <b>verdad</b>.
+      </h1>
+      <p class="lead hero__sub" data-hero>
+        Sesiones particulares de técnica individual, táctica y condición específica.
+        Para niños y adultos que quieren crecer en la cancha, no solo jugarla. Exclusivo para hombres.
+      </p>
+      <div class="hero__actions" data-hero>
+        <a href="contacto.html" class="btn btn--primary">Quiero entrenar <span class="arrow">→</span></a>
+        <a href="#metodologia" class="btn btn--ghost">Ver metodología</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="signature-band" aria-hidden="true"></div>
+
+  <!-- ============ DESCRIPCIÓN ============ -->
+  <section class="section">
+    <div class="container">
+      <div data-reveal>
+        <span class="eyebrow">El trabajo</span>
+        <h2 class="display h1" style="margin-top: var(--sp-1);">Entrenador particular de fútbol</h2>
+        <p class="lead" style="margin-top: var(--sp-2); max-width: 64ch;">
+          No es una escuela ni un equipo: soy Jota, entrenador particular que trabaja
+          contigo de forma directa para pulir tu técnica, mejorar tu lectura de juego y
+          fortalecer tu condición de cancha. Sesiones 1 a 1 o en grupos pequeños, en cancha
+          o en espacios adaptados, con planificación según tu edad, nivel y objetivo.
+        </p>
+        <p style="color: var(--gris-300); margin-top: var(--sp-2); max-width: 64ch;">
+          El fútbol no es solo talento: es repetición, decisión y confianza.
+          Aquí entrenamos los tres, con método y con la pelota como protagonista.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PÚBLICO OBJETIVO ============ -->
+  <section class="section bg-darker">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Para quién</span>
+        <h2 class="display h1">Público objetivo</h2>
+        <p class="lead" style="margin-inline:auto;">Entrenamiento particular para hombres. Sin importar la edad, hay un plan para ti.</p>
+      </div>
+
+      <div class="audience-futbol" id="audienceFutbol">
+        <!-- Niños -->
+        <div class="audience-futbol__item">
+          <div class="audience-futbol__bar audience-futbol__bar--kids"></div>
+          <div class="audience-futbol__body">
+            <div class="audience-futbol__icon audience-futbol__icon--kids">
+              <i class="ph-bold ph-user" style="font-size: 28px;"></i>
+            </div>
+            <h3>Niños</h3>
+            <p>Iniciación deportiva con bases técnicas correctas, coordinación y diversión. Aprenden jugando, desarrollan amor por el fútbol desde temprano.</p>
+            <span class="audience-futbol__tag">⚽ Solo hombres</span>
+          </div>
+        </div>
+
+        <!-- Adultos -->
+        <div class="audience-futbol__item">
+          <div class="audience-futbol__bar audience-futbol__bar--adults"></div>
+          <div class="audience-futbol__body">
+            <div class="audience-futbol__icon audience-futbol__icon--adults">
+              <i class="ph-bold ph-user-check" style="font-size: 28px;"></i>
+            </div>
+            <h3>Adultos</h3>
+            <p>Técnica individual, toma de decisiones y condición específica. Para quienes quieren mejorar su nivel, sin importar la edad que tengan.</p>
+            <span class="audience-futbol__tag">⚽ Solo hombres</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ METODOLOGÍA (3 pilares) ============ -->
+  <section class="section" id="metodologia">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Metodología</span>
+        <h2 class="display h1">Cómo construimos tu fútbol</h2>
+        <p class="lead" style="margin-inline:auto;">Enfoque técnico, táctico, físico y mental. Nada por inercia.</p>
+      </div>
+
+      <div class="futbol-pillars" id="futbolPillars">
+        <!-- Pilar 1: Técnica + Decisión -->
+        <div class="futbol-pillar">
+          <div class="futbol-pillar__icon futbol-pillar__icon--tech">
+            <i class="ph-duotone ph-target" style="font-size: 34px;"></i>
+          </div>
+          <div class="futbol-pillar__body">
+            <span class="futbol-pillar__label">Pilar 1</span>
+            <h3>Técnica y decisión</h3>
+            <p>Control, pase, remate y primera tocada con corrección inmediata. Juego reducido para entrenar la lectura: cuándo, cómo y dónde.</p>
+            <ul class="futbol-pillar__list">
+              <li>Técnica individual con repetición guiada</li>
+              <li>Toma de decisiones en situaciones reales</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pilar 2: Condición + Mentalidad -->
+        <div class="futbol-pillar">
+          <div class="futbol-pillar__icon futbol-pillar__icon--cond">
+            <i class="ph-duotone ph-lightning" style="font-size: 34px;"></i>
+          </div>
+          <div class="futbol-pillar__body">
+            <span class="futbol-pillar__label">Pilar 2</span>
+            <h3>Condición y mente</h3>
+            <p>Velocidad, agilidad y resistencia funcional con balón. Confianza, foco y manejo del error — el fútbol también se juega en la cabeza.</p>
+            <ul class="futbol-pillar__list">
+              <li>Condición específica con trabajo funcional</li>
+              <li>Mentalidad: foco, confianza y error como parte del proceso</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pilar 3: Progresión + Acompañamiento -->
+        <div class="futbol-pillar">
+          <div class="futbol-pillar__icon futbol-pillar__icon--prog">
+            <i class="ph-duotone ph-pulse" style="font-size: 34px;"></i>
+          </div>
+          <div class="futbol-pillar__body">
+            <span class="futbol-pillar__label">Pilar 3</span>
+            <h3>Progresión y acompañamiento</h3>
+            <p>Cada 4–6 semanas evaluamos y subimos el nivel. Reporte de avances, videos y tareas entre sesiones. No entrenas y desapareces.</p>
+            <ul class="futbol-pillar__list">
+              <li>Progresión por ciclos sin estancarte</li>
+              <li>Seguimiento con reportes y tareas entre sesiones</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FORMATO Y FRECUENCIA (timeline + stat-cards) ============ -->
+  <section class="section bg-darker">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Formato y frecuencia</span>
+        <h2 class="display h1">Cómo son las sesiones</h2>
+        <p class="lead" style="margin-inline:auto;">Estructura clara, progresión real. Así funciona cada ciclo contigo.</p>
+      </div>
+
+      <!-- Timeline de sesión -->
+      <div class="format-timeline" id="formatoTimeline">
+        <div class="format-timeline__step">
+          <div class="format-timeline__icon format-timeline__icon--diag">
+            <i class="ph-bold ph-file-text" style="font-size: 22px;"></i>
+          </div>
+          <span class="format-timeline__label">Diagnóstico</span>
+          <span class="format-timeline__desc">Evaluación de nivel y objetivos</span>
+        </div>
+
+        <div class="format-timeline__arrow" aria-hidden="true">
+          <i class="ph-bold ph-caret-right" style="font-size: 20px;"></i>
+        </div>
+
+        <div class="format-timeline__step">
+          <div class="format-timeline__icon format-timeline__icon--plan">
+            <i class="ph-bold ph-clock" style="font-size: 22px;"></i>
+          </div>
+          <span class="format-timeline__label">Plan por ciclo</span>
+          <span class="format-timeline__desc">4–6 semanas con objetivos</span>
+        </div>
+
+        <div class="format-timeline__arrow" aria-hidden="true">
+          <i class="ph-bold ph-caret-right" style="font-size: 20px;"></i>
+        </div>
+
+        <div class="format-timeline__step">
+          <div class="format-timeline__icon format-timeline__icon--sesh">
+            <i class="ph-bold ph-soccer-ball" style="font-size: 22px;"></i>
+          </div>
+          <span class="format-timeline__label">Sesión en cancha</span>
+          <span class="format-timeline__desc">60–90 min, 1 a 1 o grupo</span>
+        </div>
+
+        <div class="format-timeline__arrow" aria-hidden="true">
+          <i class="ph-bold ph-caret-right" style="font-size: 20px;"></i>
+        </div>
+
+        <div class="format-timeline__step">
+          <div class="format-timeline__icon format-timeline__icon--follow">
+            <i class="ph-bold ph-chat-text" style="font-size: 22px;"></i>
+          </div>
+          <span class="format-timeline__label">Seguimiento</span>
+          <span class="format-timeline__desc">Reportes y WhatsApp directo</span>
+        </div>
+      </div>
+
+      <!-- Stats grid (íconos) -->
+      <div class="stats-grid" id="futbolStats" data-reveal style="margin-top: var(--sp-6);">
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph ph-clock" style="font-size: 22px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="60" data-suffix="'">0'</div>
+          <div class="stat-card__label">Por sesión mín.</div>
+          <div class="stat-card__desc">Sesiones de 60 a 90 minutos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph ph-users" style="font-size: 22px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="4">0</div>
+          <div class="stat-card__label">Máx. por grupo</div>
+          <div class="stat-card__desc">Grupos pequeños, atención personalizada</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph ph-calendar" style="font-size: 22px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="3" data-suffix="x">0x</div>
+          <div class="stat-card__label">Sesiones / semana</div>
+          <div class="stat-card__desc">Según tu objetivo y disponibilidad</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">
+            <i class="ph ph-target" style="font-size: 22px;"></i>
+          </div>
+          <div class="stat-card__num" data-target="1" data-suffix=":1">0:1</div>
+          <div class="stat-card__label">Atención directa</div>
+          <div class="stat-card__desc">Entrenador contigo en cada sesión</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EVIDENCIA REAL ============ -->
+  <section class="section bg-darker">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Resultados reales</span>
+        <h2 class="display h1">La cancha habla por sí sola</h2>
+        <p class="lead" style="margin-inline:auto;">Una imagen representativa del trabajo en cancha: técnica, decisión y confianza aplicadas en cada sesión.</p>
+      </div>
+      <figure class="evidence" id="evidenceFutbol">
+        <div class="evidence__media">
+          <img src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782356174/WhatsApp_Image_2026-06-24_at_07.41.12_trnocy.jpg" alt="Jugador de fútbol en entrenamiento particular" loading="lazy" />
+        </div>
+        <figcaption class="evidence__caption">
+          <span class="evidence__tag" style="font-size: 1rem; padding: 0.45rem 0.9rem;">Entrenamiento en acción</span>
+          <p style="font-size: 1.15rem; color: var(--gris-300); line-height: 1.7;">Así se trabaja en las sesiones de fútbol particular: técnica individual, toma de decisiones y condición específica. No es solo patear la pelota, es leer el partido, ejecutar con precisión y tener la confianza para hacerlo bajo presión.</p>
+          <p class="evidence__note">* Cada cuerpo responde distinto. Tu resultado depende de tu compromiso, tu contexto y el cumplimiento del plan.</p>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section class="section bg-dark">
+    <div class="container text-center cta-final">
+      <h2 class="display h1">¿Vamos a la<br /><em style="color:var(--amarillo-oro);">cancha</em>?</h2>
+      <p class="lead" style="margin-inline:auto; margin-top: var(--sp-2);">Cuéntame tu nivel y tu meta. Armamos tu plan de fútbol particular.</p>
+      <a href="contacto.html" class="btn btn--red" style="margin-top: var(--sp-3);">Reservar sesión <span class="arrow">→</span></a>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col">
+          <a href="index.html" class="brand"><img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" /><span>Poder<b>Jota</b></span></a>
+          <p class="footer__brand-text">Fitness y fútbol particular con principios cristianos. Para adolescentes y adultos hombres. Fútbol para niños y adultos. Exclusivo para hombres. Solo en Lima, Perú.</p>
+          <div class="footer__social" aria-label="Redes sociales">
+            <a href="https://www.instagram.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" width="20" height="20" /></a>
+            <a href="https://www.tiktok.com/@poderjota" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" width="20" height="20" /></a>
+            <a href="https://www.facebook.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="https://cdn.simpleicons.org/facebook/ffffff" alt="Facebook" width="20" height="20" /></a>
+            <a href="https://wa.me/51922375598" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="WhatsApp" width="20" height="20" /></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Servicios</h4>
+          <a href="fitness.html">Asesoramiento Fitness</a>
+          <a href="futbol.html">Fútbol Particular</a>
+          <a href="campus.html">Campus Poder Jota</a>
+          <a href="precios.html">Planes y precios</a>
+        </div>
+        <div class="footer__col">
+          <h4>Empresa</h4>
+          <a href="index.html">Inicio</a>
+          <a href="index.html#presentacion">Quiénes somos</a>
+          <a href="contacto.html">Contacto</a>
+        </div>
+        <div class="footer__col">
+          <h4>Contacto</h4>
+          <a href="tel:+51922375598">+51 922 375 598</a>
+          <a href="#">Parque San Cristóbal, Lima, Perú</a>
+          <a href="contacto.html">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        © <span id="year"></span> Poder Jota · Hecho en Perú con disciplina, fe y movimiento. · <a href="pl/plan_correccion_poder_jota.md" style="color:var(--gris-500);font-size:0.75rem;">@pl/plan_correccion_poder_jota.md</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+  <script src="js/animations-gsap.js"></script>
+</body>
+</html>

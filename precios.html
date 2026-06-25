@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planes y Precios — Poder Jota</title>
+  <meta name="description" content="Planes y precios de Poder Jota: asesoramiento fitness, entrenamiento de fútbol particular y campus digital. Elige tu nivel de poder." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animaciones.css" />
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" defer></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/ScrollTrigger.min.js" defer></script>
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.0/dist/lenis.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="fitness.html">Fitness</a>
+        <a href="futbol.html">Fútbol</a>
+        <a href="campus.html">Campus</a>
+        <a href="precios.html" class="active">Precios</a>
+        <a href="contacto.html" class="nav__cta--shine">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" style="min-height: 70vh;">
+    <div class="hero__bg">
+      <img src="https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Cancha de fútbol con balón y pesas" loading="eager" />
+    </div>
+    <div class="hero__content">
+      <span class="eyebrow" data-hero>Planes y precios</span>
+      <h1 class="display hero__title" data-hero>
+        Elige tu nivel<br />
+        de <em>poder</em>.
+      </h1>
+      <p class="lead hero__sub" data-hero>
+        Tres servicios, tres formas de entrenar. Todos con seguimiento real,
+        valores cristianos y resultados que transforman.
+      </p>
+      <div class="hero__actions" data-hero>
+        <a href="#fitness" class="btn btn--primary">Ver planes <span class="arrow">→</span></a>
+        <a href="contacto.html" class="btn btn--ghost">Consultar</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="signature-band" aria-hidden="true"></div>
+
+  <!-- ============ INTRO SERVICIOS ============ -->
+  <section class="section">
+    <div class="container text-center" data-reveal>
+      <p class="lead" style="max-width: 64ch; margin-inline:auto;">
+        Elige el servicio que más se adapte a ti. Solo aceptamos soles peruanos.
+        ¿Dudas? <a href="contacto.html" style="color:var(--lima-voltio); font-weight:600;">Escríbeme por WhatsApp</a> y lo conversamos.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ PLANES FITNESS ============ -->
+  <section class="section bg-darker" id="fitness">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Fitness</span>
+        <h2 class="display h1">Asesoramiento Fitness</h2>
+        <p class="lead" style="margin-inline:auto;">Planes de fuerza, composición corporal y hábitos saludables con acompañamiento presencial en Lima. Exclusivo para hombres.</p>
+      </div>
+      <div class="grid plan-grid" style="grid-template-columns: 1fr;">
+        <div class="plan">
+          <h3>Plan Poder Inicio</h3>
+          <p style="color: var(--gris-300);">Tu primer paso hacia un cuerpo más fuerte.</p>
+          <div class="plan__price">S/ 30<span style="font-size:1rem; color:var(--gris-500);">/mes</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>1 plan mensual personalizado</li>
+            <li>1 revisión quincenal</li>
+            <li>Guía de técnica por video</li>
+            <li>Soporte presencial en cada sesión</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--ghost" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+        <div class="plan plan--featured">
+          <h3>Plan Poder Progreso</h3>
+          <p style="color: var(--gris-300);">El plan ideal para llevar tu entrenamiento al siguiente nivel.</p>
+          <div class="plan__price">S/ 60<span style="font-size:1rem; color:var(--gris-500);">/mes</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>Plan por ciclos de 8 semanas</li>
+            <li>2 revisiones quincenales</li>
+            <li>Guía básica de nutrición</li>
+            <li>Soporte prioritario presencial</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--primary" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+        <div class="plan">
+          <h3>Plan VIP Musculación</h3>
+          <p style="color: var(--gris-300);">Acompañamiento exclusivo con resultados máximos.</p>
+          <div class="plan__price">S/ 100<span style="font-size:1rem; color:var(--gris-500);">/mes</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>Plan por ciclos + ajustes semanales</li>
+            <li>Plan nutricional detallado</li>
+            <li>Análisis de progreso con fotos/medidas</li>
+            <li>Soporte presencial ilimitado</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--red" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PLANES FÚTBOL ============ -->
+  <section class="section" id="futbol">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Fútbol</span>
+        <h2 class="display h1">Entrenamiento de Fútbol</h2>
+        <p class="lead" style="margin-inline:auto;">Sesiones particulares de técnica, decisión y condición específica. Para niños y adultos. Exclusivo para hombres.</p>
+      </div>
+      <div class="grid plan-grid" style="grid-template-columns: 1fr;">
+        <div class="plan">
+          <h3>Plan Fútbol Inicio</h3>
+          <p style="color: var(--gris-300);">El punto de partida para mejorar tu juego.</p>
+          <div class="plan__price">S/ 40<span style="font-size:1rem; color:var(--gris-500);">/mes</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>1 sesión por semana (60 min)</li>
+            <li>Diagnóstico técnico-táctico inicial</li>
+            <li>Plan de trabajo individual</li>
+            <li>Seguimiento por WhatsApp</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--ghost" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+        <div class="plan plan--featured" style="border-color: var(--verde-cancha);">
+          <h3>Plan Fútbol Progreso</h3>
+          <p style="color: var(--gris-300);">Dos sesiones por semana para acelerar tu evolución.</p>
+          <div class="plan__price">S/ 70<span style="font-size:1rem; color:var(--gris-500);">/mes</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>2 sesiones por semana (60–90 min)</li>
+            <li>Técnica individual + toma de decisiones</li>
+            <li>Condición específica con balón</li>
+            <li>Reportes de avance cada mes</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--primary" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+        <div class="plan">
+          <h3>Plan VIP Fútbol</h3>
+          <p style="color: var(--gris-300);">Entrenamiento intensivo con atención personalizada total.</p>
+          <div class="plan__price">S/ 100<span style="font-size:1rem; color:var(--gris-500);">/mes</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>3 sesiones por semana (90 min)</li>
+            <li>Plan integral: técnica, táctica, condición</li>
+            <li>Videos con correcciones entre sesiones</li>
+            <li>Soporte prioritario por WhatsApp</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--red" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PLANES CAMPUS ============ -->
+  <section class="section bg-darker" id="campus">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Campus</span>
+        <h2 class="display h1">Campus Poder Jota</h2>
+        <p class="lead" style="margin-inline:auto;">Cursos digitales de fitness para hombres. Acceso de por vida, contenido progresivo. Próximamente disponible.</p>
+      </div>
+      <div class="grid plan-grid" style="grid-template-columns: 1fr;">
+        <div class="plan">
+          <h3>Plan Campus Inicio</h3>
+          <p style="color: var(--gris-300);">El primer paso para entrenar desde casa.</p>
+          <div class="plan__price">S/ 19<span style="font-size:1rem; color:var(--gris-500);"> único</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>Curso básico de fuerza y condición</li>
+            <li>Rutina progresiva de 4 semanas</li>
+            <li>Guía de técnica en video</li>
+            <li>Acceso de por vida</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--ghost" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+        <div class="plan plan--featured">
+          <h3>Plan Campus Progreso</h3>
+          <p style="color: var(--gris-300);">Acceso completo para avanzar a tu ritmo.</p>
+          <div class="plan__price">S/ 39<span style="font-size:1rem; color:var(--gris-500);"> único</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>Curso completo fuerza + composición</li>
+            <li>Plan por ciclos de 8 semanas</li>
+            <li>Guías de nutrición descargables</li>
+            <li>Rutinas en video con correcciones</li>
+            <li>Acceso de por vida + actualizaciones</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--primary" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+        <div class="plan">
+          <h3>Plan VIP Campus</h3>
+          <p style="color: var(--gris-300);">La experiencia digital completa con todo incluido.</p>
+          <div class="plan__price">S/ 69<span style="font-size:1rem; color:var(--gris-500);"> único</span></div>
+          <ul style="margin-top: var(--sp-2);">
+            <li>Todo el contenido Completo</li>
+            <li>Planificación semanal personalizada</li>
+            <li>Biblioteca de rutinas adicionales</li>
+            <li>Seguimiento por formulario mensual</li>
+            <li>Acceso prioritario a nuevos cursos</li>
+            <li>Acceso de por vida + actualizaciones</li>
+          </ul>
+          <a href="contacto.html" class="btn btn--red" style="margin-top: var(--sp-3); width:100%; justify-content:center;">Lo quiero</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section class="section">
+    <div class="container text-center cta-final">
+      <h2 class="display h1">¿No encuentras lo que buscas?</h2>
+      <p class="lead" style="margin-inline:auto; margin-top: var(--sp-2); max-width: 52ch;">
+        Todos los planes se adaptan a tu contexto. Conversemos y armamos algo 
+        que realmente funcione para ti.
+      </p>
+      <a href="contacto.html" class="btn btn--primary" style="margin-top: var(--sp-3);">
+        Hablemos por WhatsApp <span class="arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col">
+          <a href="index.html" class="brand"><img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" /><span>Poder<b>Jota</b></span></a>
+          <p class="footer__brand-text">Fitness y fútbol particular con principios cristianos. Para adolescentes y adultos hombres. Fútbol para niños y adultos. Exclusivo para hombres. Solo en Lima, Perú.</p>
+          <div class="footer__social" aria-label="Redes sociales">
+            <a href="https://www.instagram.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" width="20" height="20" /></a>
+            <a href="https://www.tiktok.com/@poderjota" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" width="20" height="20" /></a>
+            <a href="https://www.facebook.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="https://cdn.simpleicons.org/facebook/ffffff" alt="Facebook" width="20" height="20" /></a>
+            <a href="https://wa.me/51922375598" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="WhatsApp" width="20" height="20" /></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Servicios</h4>
+          <a href="fitness.html">Asesoramiento Fitness</a>
+          <a href="futbol.html">Fútbol Particular</a>
+          <a href="campus.html">Campus Poder Jota</a>
+          <a href="precios.html">Planes y precios</a>
+        </div>
+        <div class="footer__col">
+          <h4>Empresa</h4>
+          <a href="index.html">Inicio</a>
+          <a href="index.html#presentacion">Quiénes somos</a>
+          <a href="contacto.html">Contacto</a>
+        </div>
+        <div class="footer__col">
+          <h4>Contacto</h4>
+          <a href="tel:+51922375598">+51 922 375 598</a>
+          <a href="#">Parque San Cristóbal, Lima, Perú</a>
+          <a href="contacto.html">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        © <span id="year"></span> Poder Jota · Hecho en Perú con disciplina, fe y movimiento. · <a href="pl/plan_correccion_poder_jota.md" style="color:var(--gris-500);font-size:0.75rem;">@pl/plan_correccion_poder_jota.md</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+  <script src="js/animations-gsap.js"></script>
+</body>
+</html>

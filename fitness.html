@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asesoramiento Fitness — Poder Jota</title>
+  <meta name="description" content="Asesoramiento fitness personalizado en Lima, Perú: fuerza, composición corporal y hábitos saludables con entrenamiento presencial." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animaciones.css" />
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782243708/WhatsApp_Image_2026-06-23_at_13.44.31-removebg-preview_1_cd5fhm.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" defer></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/ScrollTrigger.min.js" defer></script>
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.0/dist/lenis.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="fitness.html" class="active">Fitness</a>
+        <a href="futbol.html">Fútbol</a>
+        <a href="campus.html">Campus</a>
+        <a href="precios.html">Precios</a>
+        <a href="contacto.html" class="nav__cta--shine">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ HERO FITNESS ============ -->
+  <section class="hero hero--fitness">
+    <div class="hero__bg">
+      <img src="https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Hombre entrenando con pesas" loading="eager" />
+    </div>
+    <div class="hero__content">
+      <span class="eyebrow" data-hero>Asesoramiento Fitness</span>
+      <h1 class="display hero__title" data-hero>
+        Construye el <em>cuerpo</em><br />
+        que <b>decide</b> tu vida.
+      </h1>
+      <p class="lead hero__sub" data-hero>
+        Entrenamos con propósito: fuerza real, composición corporal honesta
+        y hábitos que transforman tu semana.
+      </p>
+      <div class="hero__actions" data-hero>
+        <a href="contacto.html" class="btn btn--primary">Quiero mi plan <span class="arrow">→</span></a>
+        <a href="precios.html" class="btn btn--ghost">Ver planes</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="signature-band" aria-hidden="true"></div>
+
+  <!-- ============ DESCRIPCIÓN ============ -->
+  <section class="section">
+    <div class="container grid" style="gap: var(--sp-5); grid-template-columns: 1fr;">
+      <div class="grid" style="grid-template-columns: 1fr; gap: var(--sp-5);" id="fitnessDescription">
+        <div>
+          <span class="eyebrow">El servicio</span>
+          <h2 class="display h1" style="margin-top: var(--sp-1);">¿Qué es el asesoramiento fitness de Poder Jota?</h2>
+          <p class="lead" style="margin-top: var(--sp-2);">
+            Es un acompañamiento integral en el que diseñamos tu plan de entrenamiento
+            y nutrición según tu cuerpo, tu objetivo y tu contexto. No son rutinas descargadas
+            de internet: son ciclos progresivos con técnica, control y seguimiento cercano.
+          </p>
+          <p style="color: var(--gris-300); margin-top: var(--sp-2);">
+            Trabajamos con evidencia aplicada: progresión de carga, periodización
+            simple y ajustes según tu respuesta, sueño y día a día. El objetivo no es
+            que termines agotado, es que termines mejor.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ METODOLOGÍA (3 pasos) ============ -->
+  <section class="section bg-darker">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Metodología</span>
+        <h2 class="display h1">Cómo trabajamos juntos</h2>
+      </div>
+      <div class="method-steps" id="methodSteps">
+        <!-- Paso 1 -->
+        <div class="method-step">
+          <div class="method-step__icon method-step__icon--plan">
+            <i class="ph ph-target" style="font-size: 36px;"></i>
+          </div>
+          <div class="method-step__body">
+            <span class="method-step__label">Paso 1</span>
+            <h3>Evaluación y plan</h3>
+            <p>Analizamos tu condición actual, historial y equipo disponible. Diseñamos un ciclo personalizado de 4 a 8 semanas con objetivos medibles y progresión real.</p>
+            <ul class="method-step__list">
+              <li>Diagnóstico completo de condición, historial y equipo</li>
+              <li>Plan por ciclos con revisión quincenal de avance</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Paso 2 -->
+        <div class="method-step">
+          <div class="method-step__icon method-step__icon--exec">
+            <i class="ph ph-lightning" style="font-size: 36px;"></i>
+          </div>
+          <div class="method-step__body">
+            <span class="method-step__label">Paso 2</span>
+            <h3>Ejecución y técnica</h3>
+            <p>Sesiones presenciales con corrección en vivo de cada movimiento. Aprendes la técnica correcta mientras ajustamos carga, volumen y nutrición según tu respuesta semanal.</p>
+            <ul class="method-step__list">
+              <li>Corrección en tiempo real durante cada sesión</li>
+              <li>Ajuste semanal de carga, volumen y nutrición</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Paso 3 -->
+        <div class="method-step">
+          <div class="method-step__icon method-step__icon--result">
+            <i class="ph ph-trophy" style="font-size: 36px;"></i>
+          </div>
+          <div class="method-step__body">
+            <span class="method-step__label">Paso 3</span>
+            <h3>Resultados y acompañamiento</h3>
+            <p>Educamos hábitos de sueño, hidratación y alimentación para que el cambio sea sostenible. Te acompañamos en cada sesión con atención directa y personalizada.</p>
+            <ul class="method-step__list">
+              <li>Educación de hábitos saludables que se quedan</li>
+              <li>Acompañamiento presencial directo en cada sesión</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EVIDENCIA REAL ============ -->
+  <section class="section bg-darker" id="evidencia">
+    <div class="container">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Resultados reales</span>
+        <h2 class="display h1">No son promesas, son hechos</h2>
+        <p class="lead" style="margin-inline:auto;">Esto es el progreso de uno de nuestros clientes con asesoramiento fitness. Bajó de peso, mejoró su composición corporal y ganó hábitos que mantiene hoy.</p>
+      </div>
+      <figure class="evidence" id="evidenceFitness">
+        <div class="evidence__media">
+          <img src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782235368/WhatsApp_Image_2026-06-22_at_23.09.36_lqomx1.jpg" alt="Resultado real de cliente de Poder Jota: antes y después del asesoramiento fitness" loading="lazy" />
+        </div>
+        <figcaption class="evidence__caption">
+          <span class="evidence__tag" style="font-size: 1rem; padding: 0.45rem 0.9rem;">Caso real · Asesoramiento Fitness</span>
+          <p style="font-size: 1.15rem; color: var(--gris-300); line-height: 1.7;">Con constancia, técnica y seguimiento cercano logró reducir su peso y mejorar su composición corporal. Sin dietas extremas ni rutinas imposibles: un plan ajustado a su contexto y sostenible en el tiempo.</p>
+          <p class="evidence__note">* Cada cuerpo responde distinto. Tu resultado depende de tu compromiso, tu contexto y el cumplimiento del plan.</p>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ BENEFICIOS + A QUIÉN VA DIRIGIDO ============ -->
+  <section class="section">
+    <div class="container" id="benefitsAudience">
+      <div class="section-head text-center" data-reveal>
+        <span class="eyebrow">Lo que obtienes</span>
+        <h2 class="display h1">Todo lo que ganas con <em style="color:var(--lima-voltio);">Poder Jota</em></h2>
+      </div>
+
+      <div class="benefits-audience">
+        <!-- COLUMNA: Beneficios -->
+        <div class="benefits-col">
+          <div class="benefits-grid" id="benefitsGrid">
+            <div class="benefit-item">
+              <div class="benefit-item__icon">
+                <i class="ph ph-lightning" style="font-size: 22px;"></i>
+              </div>
+              <span class="benefit-item__text">Mayor fuerza, resistencia y energía diaria</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-item__icon">
+                <i class="ph ph-user" style="font-size: 22px;"></i>
+              </div>
+              <span class="benefit-item__text">Mejor composición corporal saludable</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-item__icon">
+                <i class="ph ph-shield-check" style="font-size: 22px;"></i>
+              </div>
+              <span class="benefit-item__text">Técnica correcta para entrenar sin lesiones</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-item__icon">
+                <i class="ph ph-moon" style="font-size: 22px;"></i>
+              </div>
+              <span class="benefit-item__text">Hábitos de alimentación, sueño e hidratación</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-item__icon">
+                <i class="ph ph-check-circle" style="font-size: 22px;"></i>
+              </div>
+              <span class="benefit-item__text">Plan realista sin dietas extremas ni rutinas imposibles</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-item__icon">
+                <i class="ph ph-heart" style="font-size: 22px;"></i>
+              </div>
+              <span class="benefit-item__text">Confianza y una relación sana con tu cuerpo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIVISOR VERTICAL (desktop) -->
+        <div class="benefits-audience__divider" aria-hidden="true"></div>
+
+        <!-- COLUMNA: A quién va dirigido -->
+        <div class="audience-col">
+          <div class="audience-card">
+            <span class="eyebrow" style="margin-bottom: var(--sp-1); display: block;">A quién va dirigido</span>
+            <h3 class="display h2" style="margin-bottom: var(--sp-2);">¿Es para ti?</h3>
+
+            <div class="audience-group">
+              <div class="audience-group__item">
+                <div class="audience-group__icon audience-group__icon--teen">
+                  <i class="ph-bold ph-user" style="font-size: 20px;"></i>
+                </div>
+                <div>
+                  <strong>Adolescentes</strong> que quieren iniciar con buena técnica y hábitos.
+                  <span class="audience-group__tag">Solo hombres</span>
+                </div>
+              </div>
+              <div class="audience-group__item">
+                <div class="audience-group__icon audience-group__icon--adult">
+                  <i class="ph-bold ph-user-check" style="font-size: 20px;"></i>
+                </div>
+                <div>
+                  <strong>Adultos</strong> que quieren recuperar condición, energía y salud.
+                  <span class="audience-group__tag">Solo hombres</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="audience-divider" aria-hidden="true"></div>
+
+            <ul class="audience-list">
+              <li>
+                <i class="ph ph-clock" style="font-size: 18px; color:var(--lima-voltio); flex-shrink:0;"></i>
+                Personas con poco tiempo y sin equipo sofisticado
+              </li>
+              <li>
+                <i class="ph ph-check-circle" style="font-size: 18px; color:var(--lima-voltio); flex-shrink:0;"></i>
+                Quienes probaron planes genéricos y no avanzaron
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section class="section bg-darker">
+    <div class="container text-center cta-final">
+      <h2 class="display h1">Tu cuerpo<br /><em style="color:var(--amarillo-oro);">no espera</em>.</h2>
+      <p class="lead" style="margin-inline:auto; margin-top: var(--sp-2);">Hablemos de tu objetivo y armamos tu plan fitness hoy.</p>
+      <a href="contacto.html" class="btn btn--primary" style="margin-top: var(--sp-3);">Ir a contacto <span class="arrow">→</span></a>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col">
+          <a href="index.html" class="brand"><img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" /><span>Poder<b>Jota</b></span></a>
+          <p class="footer__brand-text">Fitness y fútbol particular con principios cristianos. Para adolescentes y adultos hombres. Fútbol para niños y adultos. Exclusivo para hombres. Solo en Lima, Perú.</p>
+          <div class="footer__social" aria-label="Redes sociales">
+            <a href="https://www.instagram.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" width="20" height="20" /></a>
+            <a href="https://www.tiktok.com/@poderjota" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" width="20" height="20" /></a>
+            <a href="https://www.facebook.com/poderjota/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="https://cdn.simpleicons.org/facebook/ffffff" alt="Facebook" width="20" height="20" /></a>
+            <a href="https://wa.me/51922375598" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="WhatsApp" width="20" height="20" /></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Servicios</h4>
+          <a href="fitness.html">Asesoramiento Fitness</a>
+          <a href="futbol.html">Fútbol Particular</a>
+          <a href="campus.html">Campus Poder Jota</a>
+          <a href="precios.html">Planes y precios</a>
+        </div>
+        <div class="footer__col">
+          <h4>Empresa</h4>
+          <a href="index.html">Inicio</a>
+          <a href="index.html#presentacion">Quiénes somos</a>
+          <a href="contacto.html">Contacto</a>
+        </div>
+        <div class="footer__col">
+          <h4>Contacto</h4>
+          <a href="tel:+51922375598">+51 922 375 598</a>
+          <a href="#">Parque San Cristóbal, Lima, Perú</a>
+          <a href="contacto.html">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        © <span id="year"></span> Poder Jota · Hecho en Perú con disciplina, fe y movimiento. · <a href="pl/plan_correccion_poder_jota.md" style="color:var(--gris-500);font-size:0.75rem;">@pl/plan_correccion_poder_jota.md</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+  <script src="js/animations-gsap.js"></script>
+</body>
+</html>

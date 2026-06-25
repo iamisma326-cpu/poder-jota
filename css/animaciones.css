@@ -1,0 +1,48 @@
+/* ============================================================
+   PODER JOTA — Estados base para animaciones
+   Las transiciones reales las controla Anime.js desde js/main.js.
+   Aquí solo definimos el estado inicial (oculto) y el estado final
+   (visible) para que la página sea accesible si JS falla o si el
+   usuario tiene prefers-reduced-motion.
+   ============================================================ */
+
+/* Estado inicial: revelado por scroll con IntersectionObserver + Anime.js */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+  will-change: opacity, transform;
+}
+[data-reveal="left"] { transform: translateX(-40px); }
+[data-reveal="right"] { transform: translateX(40px); }
+[data-reveal="scale"] { transform: scale(0.92); }
+
+/* Estado animado: clase que añade Anime.js al entrar en viewport */
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+  will-change: auto; /* libera la capa de composición al terminar */
+}
+
+/* Hero: entrada escalonada (stagger) al cargar */
+[data-hero] {
+  opacity: 0;
+  transform: translateY(30px);
+  will-change: opacity, transform;
+}
+[data-hero].is-visible {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* Slider de texto: capa base gestionada por JS */
+.text-slide { transition: none; }
+
+/* Si el usuario no quiere motion, mostramos todo estático */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-hero] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
