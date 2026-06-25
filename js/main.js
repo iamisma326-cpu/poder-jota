@@ -158,37 +158,35 @@
       // Sincroniza los dots siempre
       dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
 
-      if (prefersReduced || typeof anime === 'undefined') {
-        slides.forEach((s, i) => {
-          s.classList.toggle('is-active', i === index);
-          s.style.opacity = i === index ? '1' : '0';
-          s.style.zIndex = i === index ? '1' : '0';
-        });
-        current = index;
-        return;
-      }
-
       const outgoing = slides[current];
       const incoming = slides[index];
 
       // Cancela cualquier animación en curso para evitar estados inconsistentes
-      anime.remove(slides);
+      if (!prefersReduced && typeof anime !== 'undefined') anime.remove(slides);
 
-      // Normaliza TODAS las slides: solo la saliente y la entrante participan;
-      // las demás quedan ocultas y sin z-index para que no se apilen.
+      // Normaliza TODAS las slides de forma determinista: la entrante visible,
+      // el resto ocultas. No dependemos de callbacks `complete` (que pueden no
+      // ejecutarse si la animación se cancela) para dejar un estado limpio.
       slides.forEach((s, i) => {
-        if (i === current || i === index) return;
+        if (i === index) return;
         s.classList.remove('is-active');
-        s.style.opacity = '0';
         s.style.zIndex = '0';
+        if (i !== current) s.style.opacity = '0';
       });
 
-      // Saliente: por debajo y se desvanece
-      outgoing.style.zIndex = '0';
-
-      // Entrante: por encima, lista para aparecer
       incoming.classList.add('is-active');
       incoming.style.zIndex = '1';
+
+      // current debe actualizarse YA, antes de cualquier animación, para que el
+      // siguiente tick siempre parta de un estado coherente.
+      current = index;
+
+      if (prefersReduced || typeof anime === 'undefined') {
+        incoming.style.opacity = '1';
+        outgoing.style.opacity = '0';
+        return;
+      }
+
       incoming.style.opacity = '0';
 
       // Fundido de salida
@@ -197,10 +195,6 @@
         opacity: 0,
         duration: 300,
         easing: 'easeInCubic',
-        complete: () => {
-          outgoing.classList.remove('is-active');
-          outgoing.style.zIndex = '0';
-        },
       });
 
       // Fundido de entrada
@@ -211,8 +205,6 @@
         delay: 120,
         easing: 'easeOutCubic',
       });
-
-      current = index;
     }
 
     function goTo(index) {
@@ -224,12 +216,22 @@
       show(index);
     }
 
-    function start() { timer = setInterval(next, INTERVAL); }
-    function restart() { clearInterval(timer); start(); }
+    function stop() { clearInterval(timer); timer = null; }
+    // Idempotente: limpia siempre el timer previo para evitar intervalos
+    // duplicados corriendo en paralelo (la causa de que se "congelara").
+    function start() { stop(); timer = setInterval(next, INTERVAL); }
+    function restart() { start(); }
 
     // Pausa en hover
-    slider.addEventListener('mouseenter', () => clearInterval(timer));
+    slider.addEventListener('mouseenter', stop);
     slider.addEventListener('mouseleave', start);
+
+    // Pausa cuando la pestaña no está visible y reanuda al volver, así el
+    // navegador no desincroniza el intervalo por el throttling de fondo.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else start();
+    });
 
     start();
   }
