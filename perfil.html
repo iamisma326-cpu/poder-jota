@@ -56,7 +56,459 @@
     </div>
   </footer>
 
-  <!-- Bundle: todo auto-contenido (sin ES modules, usa el supabase global del CDN) -->
-  <script src="js/perfil-bundle.js"></script>
+  <!-- Script inline: todo auto-contenido, no depende de archivos externos -->
+  <script>
+// ============================================================
+// PODER JOTA — Perfil Bundle (inlineado, sin dependencias externas)
+// La variable global `supabase` viene del CDN cargado en el head
+// ============================================================
+
+(function () {
+  'use strict';
+
+  // ---------- Configuración ----------
+  var SUPABASE_URL = 'https://cgqerygskfuctvfwgpxv.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_I8iqpE0e6IbDwyxVwpaQJA_odh4PT3g';
+
+  var sbClient = null;
+
+  function getClient() {
+    if (sbClient) return sbClient;
+    if (typeof supabase !== 'undefined') {
+      sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+        },
+      });
+    }
+    return sbClient;
+  }
+
+  // ---------- Auth ----------
+  async function getSession() {
+    var sb = getClient();
+    if (!sb) return null;
+    var res = await sb.auth.getSession();
+    if (res.error || !res.data.session) return null;
+    return res.data.session;
+  }
+
+  async function logout() {
+    var sb = getClient();
+    if (!sb) return;
+    await sb.auth.signOut();
+  }
+
+  async function getUserProfile(userId) {
+    var sb = getClient();
+    if (!sb) return null;
+    var res = await sb.from('profiles').select('*').eq('id', userId).single();
+    if (res.error) return null;
+    return res.data;
+  }
+
+  async function getActiveMembership(userId) {
+    var sb = getClient();
+    if (!sb) return null;
+    var now = new Date().toISOString();
+    var res = await sb
+      .from('user_memberships')
+      .select('*, memberships(*)')
+      .eq('user_id', userId)
+      .eq('active', true)
+      .gte('end_date', now)
+      .order('end_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (res.error) return null;
+    return res.data;
+  }
+
+  async function getMembershipPlans() {
+    var sb = getClient();
+    if (!sb) return [];
+    var res = await sb
+      .from('memberships')
+      .select('*')
+      .eq('active', true)
+      .order('price', { ascending: true });
+    if (res.error) return [];
+    return res.data;
+  }
+
+  async function getPaymentHistory(userId) {
+    var sb = getClient();
+    if (!sb) return [];
+    var res = await sb
+      .from('payments')
+      .select('*, memberships(name)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (res.error) return [];
+    return res.data;
+  }
+
+  async function updateProfile(userId, updates) {
+    var sb = getClient();
+    if (!sb) return null;
+    var res = await sb.from('profiles').update(updates).eq('id', userId).select().single();
+    if (res.error) throw res.error;
+    return res.data;
+  }
+
+  async function initUserMenu() {
+    var session = await getSession();
+    var navLinks = document.getElementById('navLinks');
+    if (!navLinks) return;
+
+    var existing = document.querySelector('.nav__user-btn');
+    if (existing) existing.remove();
+
+    if (!session) {
+      var loginLink = document.createElement('a');
+      loginLink.href = 'login.html';
+      loginLink.className = 'nav__user-btn';
+      loginLink.textContent = 'Ingresar';
+      var cta = navLinks.querySelector('.nav__cta--shine');
+      if (cta) navLinks.insertBefore(loginLink, cta);
+      else navLinks.appendChild(loginLink);
+      return;
+    }
+
+    var user = session.user;
+    var avatarUrl = user.user_metadata && user.user_metadata.avatar_url;
+    var displayName = (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0] || 'Usuario';
+    var initial = displayName.charAt(0).toUpperCase();
+
+    var userMenu = document.createElement('div');
+    userMenu.className = 'nav__user-menu nav__user-btn';
+    var userBtn = document.createElement('button');
+    userBtn.className = 'nav__user-btn--logged';
+    userBtn.setAttribute('aria-label', 'Menú de usuario');
+    userBtn.innerHTML = avatarUrl
+      ? '<img src="' + avatarUrl + '" alt="" width="32" height="32" class="nav__user-avatar" />'
+      : '<span class="nav__user-initial">' + initial + '</span>';
+
+    var dropdown = document.createElement('div');
+    dropdown.className = 'nav__user-dropdown';
+    dropdown.innerHTML =
+      '<div class="nav__user-info">' +
+        '<span class="nav__user-name">' + displayName + '</span>' +
+        '<span class="nav__user-email">' + user.email + '</span>' +
+      '</div>' +
+      '<a href="perfil.html" class="nav__dropdown-link"><i class="ph ph-user"></i> Mi Perfil</a>' +
+      '<a href="perfil.html#membresia" class="nav__dropdown-link"><i class="ph ph-crown"></i> Mi Membresía</a>' +
+      '<button class="nav__dropdown-link nav__dropdown-link--logout" id="btnLogoutNav"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>';
+
+    userMenu.appendChild(userBtn);
+    userMenu.appendChild(dropdown);
+
+    userBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      userMenu.classList.toggle('open');
+    });
+    document.addEventListener('click', function () {
+      userMenu.classList.remove('open');
+    });
+
+    dropdown.querySelector('#btnLogoutNav').addEventListener('click', async function () {
+      await logout();
+      window.location.href = 'index.html';
+    });
+
+    var cta = navLinks.querySelector('.nav__cta--shine');
+    if (cta) navLinks.insertBefore(userMenu, cta);
+    else navLinks.appendChild(userMenu);
+  }
+
+  // ---------- Perfil Dashboard ----------
+  async function initPerfil() {
+    var sb = getClient();
+    if (!sb) {
+      document.getElementById('app').innerHTML = '<p class="lead" style="text-align:center;padding:4rem;">Error al cargar Supabase.</p>';
+      return;
+    }
+
+    var session = await getSession();
+    if (!session) {
+      window.location.href = 'login.html?redirect=perfil.html';
+      return;
+    }
+
+    var user = session.user;
+    var profile = await getUserProfile(user.id);
+
+    var activeMembership, plans, payments;
+    try { activeMembership = await getActiveMembership(user.id); } catch (e) {}
+    try { plans = await getMembershipPlans(); } catch (e) {}
+    try { payments = await getPaymentHistory(user.id); } catch (e) {}
+
+    renderPerfil(user, profile, activeMembership, plans || [], payments || []);
+    setupTabs();
+    setupAgeForm(user.id);
+  }
+
+  function renderPerfil(user, profile, activeMembership, plans, payments) {
+    var displayName = (user.user_metadata && user.user_metadata.full_name) || (profile && profile.full_name) || user.email.split('@')[0] || 'Usuario';
+    var avatarUrl = user.user_metadata && user.user_metadata.avatar_url;
+    var initial = displayName.charAt(0).toUpperCase();
+    var email = user.email;
+    var age = (profile && profile.age) || (user.user_metadata && user.user_metadata.age);
+
+    var app = document.getElementById('app');
+    if (!app) return;
+
+    app.innerHTML =
+      '<section class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));">' +
+        '<div class="container">' +
+          '<div class="perfil-layout">' +
+            // Sidebar
+            '<aside class="perfil-sidebar">' +
+              '<div class="perfil-card">' +
+                '<div class="perfil-avatar">' +
+                  (avatarUrl
+                    ? '<img src="' + avatarUrl + '" alt="' + displayName + '" width="80" height="80" />'
+                    : '<span class="perfil-initial">' + initial + '</span>') +
+                '</div>' +
+                '<h2 class="perfil-name">' + displayName + '</h2>' +
+                '<p class="perfil-email">' + email + '</p>' +
+                (age ? '<p class="perfil-age"><i class="ph ph-cake"></i> ' + age + ' años</p>' : '') +
+                '<div class="perfil-sidebar-nav">' +
+                  '<button class="perfil-tab-btn active" data-tab="perfil-tab"><i class="ph ph-user-circle"></i> Mi Perfil</button>' +
+                  '<button class="perfil-tab-btn" data-tab="membresia-tab"><i class="ph ph-crown"></i> Mi Membresía' +
+                    (activeMembership ? '<span class="perfil-badge active">Activa</span>' : '') +
+                  '</button>' +
+                  '<button class="perfil-tab-btn" data-tab="planes-tab"><i class="ph ph-shopping-bag-open"></i> Comprar Membresía</button>' +
+                  '<button class="perfil-tab-btn" data-tab="historial-tab"><i class="ph ph-clock"></i> Historial</button>' +
+                  '<button class="perfil-tab-btn perfil-tab-btn--logout" id="btnLogoutPerfil"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>' +
+                '</div>' +
+              '</div>' +
+            '</aside>' +
+            // Main
+            '<main class="perfil-main">' +
+              tabPerfil(displayName, email, age) +
+              tabMembresia(activeMembership) +
+              tabPlanes(plans) +
+              tabHistorial(payments) +
+            '</main>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+
+    document.getElementById('btnLogoutPerfil').addEventListener('click', async function () {
+      await logout();
+      window.location.href = 'index.html';
+    });
+  }
+
+  function tabPerfil(displayName, email, age) {
+    return '<div class="perfil-tab-content active" id="perfil-tab">' +
+      '<div class="perfil-card">' +
+        '<h3><i class="ph ph-user-circle"></i> Información Personal</h3>' +
+        '<div class="perfil-field"><label>Nombre completo</label><p>' + displayName + '</p></div>' +
+        '<div class="perfil-field"><label>Correo electrónico</label><p>' + email + '</p></div>' +
+        '<div class="perfil-field"><label>Edad</label>' +
+          (age
+            ? '<p>' + age + ' años</p>'
+            : '<div class="perfil-age-form">' +
+                '<p style="color:var(--amarillo-oro);font-size:0.85rem;">Completa tu edad para una mejor experiencia</p>' +
+                '<div class="perfil-age-input-group">' +
+                  '<input type="number" id="inputAge" min="1" max="120" placeholder="Tu edad" class="perfil-input" />' +
+                  '<button id="btnSaveAge" class="btn btn--primary">Guardar</button>' +
+                '</div>' +
+              '</div>') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function tabMembresia(membership) {
+    if (membership) {
+      var features = '';
+      try {
+        if (membership.memberships && membership.memberships.features) {
+          var featArr = JSON.parse(membership.memberships.features);
+          features = featArr.map(function (f) { return '<span class="perfil-feature-tag">✓ ' + f + '</span>'; }).join('');
+        }
+      } catch (e) {}
+
+      var dias = calcDaysLeft(membership.end_date);
+
+      return '<div class="perfil-tab-content" id="membresia-tab">' +
+        '<div class="perfil-card perfil-membresia-active">' +
+          '<div class="perfil-membresia-header">' +
+            '<i class="ph-fill ph-crown" style="font-size:2rem;color:var(--amarillo-oro);"></i>' +
+            '<div><h3>' + (membership.memberships ? membership.memberships.name : 'Membresía') + '</h3>' +
+            '<p class="perfil-membresia-status">✓ Activa</p></div>' +
+          '</div>' +
+          '<div class="perfil-membresia-dates">' +
+            '<div><span class="perfil-membresia-label">Inicio</span><span>' + new Date(membership.start_date).toLocaleDateString('es-PE') + '</span></div>' +
+            '<div><span class="perfil-membresia-label">Vence</span><span>' + new Date(membership.end_date).toLocaleDateString('es-PE') + '</span></div>' +
+            '<div><span class="perfil-membresia-label">Días restantes</span><span class="perfil-membresia-dias">' + dias + '</span></div>' +
+          '</div>' +
+          '<div class="perfil-membresia-features">' + features + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    return '<div class="perfil-tab-content" id="membresia-tab">' +
+      '<div class="perfil-card" style="text-align:center;padding:var(--sp-6);">' +
+        '<i class="ph ph-crown" style="font-size:3rem;color:var(--gris-500);"></i>' +
+        '<h3 style="margin-top:var(--sp-2);">Sin membresía activa</h3>' +
+        '<p class="lead" style="margin-top:var(--sp-1);">Adquiere una membresía para acceder a todos los cursos del Campus Poder Jota.</p>' +
+        '<button class="btn btn--primary" style="margin-top:var(--sp-3);" onclick="document.querySelector(\'[data-tab=\\'planes-tab\\']\').click()">' +
+          'Ver Planes <span class="arrow">→</span>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function tabPlanes(plans) {
+    var html = '<div class="perfil-tab-content" id="planes-tab">' +
+      '<div class="section-head"><h3>Elige tu plan</h3><p class="lead">Accede a todos los cursos del Campus Poder Jota con una membresía mensual.</p></div>' +
+      '<div class="perfil-plans-grid">';
+
+    if (plans.length > 0) {
+      for (var i = 0; i < plans.length; i++) {
+        var plan = plans[i];
+        var featured = i === 1 ? ' perfil-plan-card--featured' : '';
+        var badge = i === 1 ? '<span class="perfil-plan-badge">MÁS POPULAR</span>' : '';
+        var btnClass = i === 1 ? 'btn--primary' : 'btn--ghost';
+        var featuresHtml = '';
+        try {
+          if (plan.features) {
+            var featArr = JSON.parse(plan.features);
+            for (var f = 0; f < featArr.length; f++) {
+              featuresHtml += '<li><i class="ph ph-check-circle"></i> ' + featArr[f] + '</li>';
+            }
+          }
+        } catch (e) {}
+
+        html +=
+          '<div class="perfil-plan-card' + featured + '">' + badge +
+            '<div class="perfil-plan-header">' +
+              '<h4>' + plan.name + '</h4>' +
+              '<div class="perfil-plan-price"><span class="perfil-plan-currency">S/</span><span class="perfil-plan-amount">' + plan.price + '</span><span class="perfil-plan-period">/mes</span></div>' +
+              '<p>' + (plan.description || '') + '</p>' +
+            '</div>' +
+            '<ul class="perfil-plan-features">' + featuresHtml + '</ul>' +
+            '<button class="btn ' + btnClass + ' perfil-btn-comprar" data-plan-id="' + plan.id + '" data-plan-name="' + plan.name + '" data-plan-price="' + plan.price + '">' +
+              'Comprar <span class="arrow">→</span>' +
+            '</button>' +
+          '</div>';
+      }
+    } else {
+      html += '<p class="lead">No hay planes disponibles momentáneamente.</p>';
+    }
+
+    html += '</div>' +
+      '<div class="perfil-payment-info" style="margin-top:var(--sp-3);text-align:center;">' +
+        '<p class="form-note" style="color:var(--gris-300);"><i class="ph ph-shield-check" style="color:var(--lima-voltio);"></i> Pago 100% seguro. Aceptamos Yape, tarjetas y más.</p>' +
+      '</div>' +
+    '</div>';
+
+    return html;
+  }
+
+  function tabHistorial(payments) {
+    var html = '<div class="perfil-tab-content" id="historial-tab">' +
+      '<div class="section-head"><h3>Historial de Pagos</h3></div>';
+
+    if (payments.length > 0) {
+      html += '<div class="perfil-payments-list">';
+      for (var i = 0; i < payments.length; i++) {
+        var p = payments[i];
+        var statusText = p.status === 'completed' ? '✓ Pagado' : p.status === 'pending' ? '⏳ Pendiente' : '✗ Fallido';
+        html +=
+          '<div class="perfil-payment-item">' +
+            '<div class="perfil-payment-left">' +
+              '<span class="perfil-payment-plan">' + (p.memberships ? p.memberships.name : 'Membresía') + '</span>' +
+              '<span class="perfil-payment-date">' + new Date(p.created_at).toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' }) + '</span>' +
+            '</div>' +
+            '<div class="perfil-payment-right">' +
+              '<span class="perfil-payment-amount">S/ ' + p.amount + '</span>' +
+              '<span class="perfil-payment-status perfil-payment-status--' + p.status + '">' + statusText + '</span>' +
+            '</div>' +
+          '</div>';
+      }
+      html += '</div>';
+    } else {
+      html += '<div class="perfil-card" style="text-align:center;padding:var(--sp-6);">' +
+        '<i class="ph ph-clock" style="font-size:3rem;color:var(--gris-500);"></i>' +
+        '<h3 style="margin-top:var(--sp-2);">Sin pagos registrados</h3>' +
+        '<p class="lead" style="margin-top:var(--sp-1);">Cuando realices tu primera compra, aparecerá aquí.</p>' +
+      '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function calcDaysLeft(endDate) {
+    var now = new Date();
+    var end = new Date(endDate);
+    var diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    return diff > 0 ? diff : 0;
+  }
+
+  function setupTabs() {
+    var tabs = document.querySelectorAll('.perfil-tab-btn');
+    tabs.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        btn.classList.add('active');
+        var tabId = btn.getAttribute('data-tab');
+        document.querySelectorAll('.perfil-tab-content').forEach(function (tc) { tc.classList.remove('active'); });
+        var el = document.getElementById(tabId);
+        if (el) el.classList.add('active');
+      });
+    });
+  }
+
+  function setupAgeForm(userId) {
+    var btnSave = document.getElementById('btnSaveAge');
+    var inputAge = document.getElementById('inputAge');
+    if (!btnSave || !inputAge) return;
+
+    btnSave.addEventListener('click', async function () {
+      var age = parseInt(inputAge.value);
+      if (!age || age < 1 || age > 120) {
+        inputAge.style.borderColor = 'var(--error)';
+        return;
+      }
+      inputAge.style.borderColor = '';
+      try {
+        await updateProfile(userId, { age: age });
+        window.location.reload();
+      } catch (e) {
+        alert('Error al guardar la edad. Intenta de nuevo.');
+      }
+    });
+  }
+
+  // ---------- Inicialización ----------
+  document.addEventListener('DOMContentLoaded', async function () {
+    try {
+      // Año del footer
+      var yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // Inicializar menú de usuario
+      await initUserMenu();
+
+      // Inicializar perfil
+      await initPerfil();
+    } catch (e) {
+      console.error('Error en perfil:', e);
+      var app = document.getElementById('app');
+      if (app) {
+        app.innerHTML = '<p class="lead" style="text-align:center;padding:4rem;color:var(--error);">Error al cargar el perfil. <a href="perfil.html" style="color:var(--lima-voltio);font-weight:600;">Recarga la página</a>.</p>';
+      }
+    }
+  });
+})();
+  </script>
 </body>
 </html>
