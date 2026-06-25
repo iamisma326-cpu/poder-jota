@@ -112,6 +112,30 @@
       color: var(--error);
       border: 1px solid rgba(211,47,47,0.3);
     }
+    .admin-btn--wa {
+      background: rgba(37,211,102,0.15);
+      color: #25D366;
+      border: 1px solid rgba(37,211,102,0.3);
+    }
+    .admin-btn--wa:hover {
+      background: rgba(37,211,102,0.25);
+    }
+    .admin-notif-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      background: rgba(46,125,50,0.12);
+      border: 1px solid rgba(46,125,50,0.25);
+      border-radius: var(--radius-sm);
+      padding: var(--sp-2) var(--sp-3);
+      margin-top: var(--sp-2);
+      flex-wrap: wrap;
+    }
+    .admin-notif-bar strong {
+      color: var(--crema-andina);
+      flex: 1;
+      min-width: 150px;
+    }
     .admin-empty {
       text-align: center;
       padding: var(--sp-5);
@@ -525,6 +549,30 @@
         showToast('Error al actualizar pago', true);
         return;
       }
+
+      // Mostrar notificación flotante persistente con botón WhatsApp
+      var userName = (payment.profiles && payment.profiles.full_name) || 'Usuario';
+      var planName = (payment.memberships && payment.memberships.name) || 'Membresía';
+      var waMsg = encodeURIComponent(
+        '¡Hola ' + userName + '! ✅ Tu membresía ' + planName + ' del Campus Poder Jota ha sido ACTIVADA. Ya puedes acceder a todos los cursos en https://poder-jota.vercel.app/campus.html. Inicia sesión y empieza a entrenar 💪🔥'
+      );
+      var waUrl = 'https://wa.me/51922375598?text=' + waMsg;
+
+      var notif = document.createElement('div');
+      notif.style.cssText = 'position:fixed;bottom:var(--sp-3);right:var(--sp-3);left:var(--sp-3);max-width:520px;margin:0 auto;background:var(--gris-900);border:2px solid rgba(46,125,50,0.4);border-radius:var(--radius);padding:var(--sp-2) var(--sp-3);z-index:1000;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;animation:slideUp 0.3s ease;';
+      notif.innerHTML =
+        '<span style="font-size:0.9rem;color:var(--crema-andina);flex:1;min-width:150px;">' +
+          '<strong>✅ Activado:</strong> ' + userName + ' (' + planName + ')' +
+        '</span>' +
+        '<a href="' + waUrl + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:700;background:rgba(37,211,102,0.15);color:#25D366;border:1px solid rgba(37,211,102,0.3);text-decoration:none;">📲 Notificar</a>' +
+        '<button id="btnCerrarNotif" style="background:transparent;color:var(--gris-500);border:none;font-size:1.1rem;padding:0.2rem 0.4rem;">✕</button>';
+
+      document.body.appendChild(notif);
+
+      // Cerrar notificación
+      document.getElementById('btnCerrarNotif').addEventListener('click', function () {
+        notif.remove();
+      });
 
       showToast('✅ Membresía activada correctamente');
     } else {
