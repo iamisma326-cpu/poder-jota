@@ -264,6 +264,67 @@
       filter: invert(0.7);
       cursor: pointer;
     }
+    .admin-weekly {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-4);
+    }
+    .admin-weekly__card {
+      background: var(--gris-900);
+      border: 1px solid rgba(243,237,225,0.06);
+      border-radius: var(--radius);
+      padding: var(--sp-3);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+    .admin-weekly__icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      font-size: 1.3rem;
+    }
+    .admin-weekly__icon--users {
+      background: rgba(198,255,61,0.1);
+      color: var(--lima-voltio);
+    }
+    .admin-weekly__icon--payments {
+      background: rgba(46,125,50,0.12);
+      color: var(--success);
+    }
+    .admin-weekly__icon--income {
+      background: rgba(255,199,44,0.12);
+      color: var(--amarillo-oro);
+    }
+    .admin-weekly__icon--total {
+      background: rgba(37,211,102,0.1);
+      color: #25D366;
+    }
+    .admin-weekly__info {
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-weekly__num {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--crema-andina);
+      line-height: 1;
+    }
+    .admin-weekly__label {
+      font-size: 0.68rem;
+      color: var(--gris-500);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+    .admin-weekly__label small {
+      color: var(--gris-500);
+      opacity: 0.7;
+    }
     .admin-chart {
       background: var(--gris-900);
       border: 1px solid rgba(243,237,225,0.06);
@@ -434,6 +495,10 @@
   var _allPayments = [];
   var _allActiveCount = 0;
   var _allIngresosMes = 0;
+  var _weeklyUsers = 0;
+  var _weeklyPayments = 0;
+  var _weeklyIncome = 0;
+  var _totalUsers = 0;
 
   function getClient() {
     if (sbClient) return sbClient;
@@ -566,6 +631,38 @@
       }
     });
 
+    // Calcular stats semanales (lunes de esta semana)
+    var weekStart = new Date();
+    var diffDays = weekStart.getDay() === 0 ? 6 : weekStart.getDay() - 1;
+    weekStart.setDate(weekStart.getDate() - diffDays);
+    weekStart.setHours(0, 0, 0, 0);
+
+    // Contar usuarios de la semana
+    var { count: weekUsersCount } = await sb
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', weekStart.toISOString());
+    _weeklyUsers = weekUsersCount || 0;
+
+    // Contador total de usuarios
+    var { count: totalUsersCount } = await sb
+      .from('profiles')
+      .select('id', { count: 'exact', head: true });
+    _totalUsers = totalUsersCount || 0;
+
+    // Pagos e ingresos de la semana
+    _weeklyPayments = 0;
+    _weeklyIncome = 0;
+    _allPayments.forEach(function (p) {
+      var d = new Date(p.created_at);
+      if (d >= weekStart) {
+        _weeklyPayments++;
+        if (p.status === 'completed') {
+          _weeklyIncome += parseFloat(p.amount) || 0;
+        }
+      }
+    });
+
     renderDashboard();
   }
 
@@ -586,6 +683,9 @@
             '<h2 class="display h1">Panel de Administración</h2>' +
             '<p class="lead">Gestiona los pagos y membresías de los usuarios.</p>' +
           '</div>' +
+
+          // Resumen semanal
+          renderWeeklySummary() +
 
           // Stats
           '<div class="admin-stats">' +
@@ -718,6 +818,39 @@
           '</table>' +
         '</div>' +
       '</div>';
+  }
+
+  function renderWeeklySummary() {
+    return '<div class="admin-weekly">' +
+      '<div class="admin-weekly__card">' +
+        '<div class="admin-weekly__icon admin-weekly__icon--users"><i class="ph ph-user-plus"></i></div>' +
+        '<div class="admin-weekly__info">' +
+          '<span class="admin-weekly__num">' + _weeklyUsers + '</span>' +
+          '<span class="admin-weekly__label">Nuevos usuarios <small>esta semana</small></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="admin-weekly__card">' +
+        '<div class="admin-weekly__icon admin-weekly__icon--payments"><i class="ph ph-currency-circle-dollar"></i></div>' +
+        '<div class="admin-weekly__info">' +
+          '<span class="admin-weekly__num">' + _weeklyPayments + '</span>' +
+          '<span class="admin-weekly__label">Pagos <small>esta semana</small></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="admin-weekly__card">' +
+        '<div class="admin-weekly__icon admin-weekly__icon--income"><i class="ph ph-trend-up"></i></div>' +
+        '<div class="admin-weekly__info">' +
+          '<span class="admin-weekly__num">S/ ' + _weeklyIncome.toFixed(0) + '</span>' +
+          '<span class="admin-weekly__label">Ingresos <small>esta semana</small></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="admin-weekly__card">' +
+        '<div class="admin-weekly__icon admin-weekly__icon--total"><i class="ph ph-users-three"></i></div>' +
+        '<div class="admin-weekly__info">' +
+          '<span class="admin-weekly__num">' + _totalUsers + '</span>' +
+          '<span class="admin-weekly__label">Total usuarios registrados</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }
 
   function renderIncomeChart() {
