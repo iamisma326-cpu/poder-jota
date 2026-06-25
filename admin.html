@@ -15,6 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
   <!-- Supabase JS (global) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SheetJS for XLSX export -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <style>
     .admin-stats {
       display: grid;
@@ -435,6 +437,23 @@
       color: var(--lima-voltio);
       border-color: rgba(198,255,61,0.3);
     }
+    .admin-export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: rgba(0,128,0,0.12);
+      color: #00b894;
+      border: 1px solid rgba(0,128,0,0.25);
+      transition: background var(--t-fast), opacity var(--t-fast);
+      white-space: nowrap;
+    }
+    .admin-export-btn:hover {
+      background: rgba(0,128,0,0.2);
+    }
     @keyframes slideUp {
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
@@ -727,6 +746,7 @@
               '<i class="ph ph-calendar"></i>' +
               '<input type="date" id="adminDateTo" value="' + _filterDateTo + '" title="Hasta" />' +
             '</div>' +
+            '<button class="admin-export-btn" id="adminExportXLSX"><i class="ph ph-download-simple"></i> Exportar XLSX</button>' +
           '</div>' +
 
           // Filtro de estado
@@ -1013,6 +1033,56 @@
       '</div>';
   }
 
+  // ---------- Exportar a XLSX ----------
+  function exportToXLSX() {
+    // Usar los datos filtrados (lo que ve el admin en pantalla)
+    var exportData = filterPayments(_allPayments);
+    if (!exportData || exportData.length === 0) {
+      showToast('No hay datos para exportar con los filtros actuales', true);
+      return;
+    }
+
+    // Preparar datos
+    var data = [['Usuario','Email','Plan','Monto','Fecha','Estado']];
+    for (var i = 0; i < exportData.length; i++) {
+      var p = exportData[i];
+      var profile = p.profiles || {};
+      data.push([
+        profile.full_name || '—',
+        profile.email || '—',
+        p.memberships ? p.memberships.name : '—',
+        parseFloat(p.amount) || 0,
+        new Date(p.created_at).toLocaleDateString('es-PE', {
+          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+        }),
+        (p.status === 'completed' ? 'Completado' : p.status === 'pending' ? 'Pendiente' : p.status === 'failed' ? 'Rechazado' : p.status)
+      ]);
+    }
+
+    // Crear workbook
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.aoa_to_sheet(data);
+
+    // Ajustar ancho de columnas
+    ws['!cols'] = [
+      { wch: 25 }, // Usuario
+      { wch: 30 }, // Email
+      { wch: 15 }, // Plan
+      { wch: 10 }, // Monto
+      { wch: 20 }, // Fecha
+      { wch: 15 }  // Estado
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Pagos');
+
+    // Generar y descargar
+    var now = new Date();
+    var dateStr = now.toISOString().slice(0, 10);
+    XLSX.writeFile(wb, 'poderjota_pagos_' + dateStr + '.xlsx');
+
+    showToast('✅ Archivo XLSX descargado');
+  }
+
   // ---------- Filtros: búsqueda, fecha, estado ----------
   document.addEventListener('input', function (e) {
     if (e.target.id === 'adminSearchInput') {
@@ -1030,6 +1100,9 @@
   });
 
   document.addEventListener('click', function (e) {
+    if (e.target.id === 'adminExportXLSX') {
+      exportToXLSX();
+    }
     if (e.target.id === 'adminSearchClear') {
       _searchTerm = '';
       renderDashboard();
