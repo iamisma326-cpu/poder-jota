@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil — Poder Jota</title>
+  <meta name="description" content="Tu perfil en Poder Jota. Gestiona tu membresía, planes y más." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/animaciones.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="fitness.html">Fitness</a>
+        <a href="futbol.html">Fútbol</a>
+        <a href="campus.html">Campus</a>
+        <a href="precios.html">Precios</a>
+        <a href="contacto.html" class="nav__cta--shine">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="app">
+    <div class="perfil-loading">
+      <div class="perfil-loading-spinner"></div>
+      <p>Cargando tu perfil...</p>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer" style="margin-top:auto;">
+    <div class="container">
+      <div class="footer__bottom">
+        © <span id="year"></span> Poder Jota · Hecho en Perú con disciplina, fe y movimiento.
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { getSupabase, getSession, getUserProfile, onAuthStateChange } from './js/supabase.js';
+    import { getActiveMembership, getMembershipPlans, getPaymentHistory, initUserMenu, logout, updateProfile } from './js/auth.js';
+
+    // Inicializar navbar
+    initUserMenu();
+
+    // Importar y ejecutar perfil
+    import('./js/perfil.js').catch(err => {
+      console.error('Error loading perfil:', err);
+      document.getElementById('app').innerHTML = '<p class="lead" style="text-align:center;padding:4rem;color:var(--error);">Error al cargar el perfil. Recarga la página.</p>';
+    });
+  </script>
+</body>
+</html>

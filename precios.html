@@ -19,6 +19,8 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.6/dist/ScrollTrigger.min.js" defer></script>
   <!-- Lenis smooth scroll -->
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.0/dist/lenis.min.js" defer></script>
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -283,5 +285,10 @@
 
   <script type="module" src="js/main.js"></script>
   <script src="js/animations-gsap.js"></script>
+  <!-- User menu initialization -->
+  <script type="module">
+    import { initUserMenu } from './js/auth.js';
+    initUserMenu();
+  </script>
 </body>
 </html>
