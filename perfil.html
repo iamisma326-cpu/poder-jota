@@ -301,6 +301,15 @@
       await logout();
       window.location.href = 'index.html';
     });
+
+    // Boton "Ver Planes" en tab membresia (sin membresia activa)
+    var btnGoPlanes = document.getElementById('btnGoPlanes');
+    if (btnGoPlanes) {
+      btnGoPlanes.addEventListener('click', function () {
+        var planesBtn = document.querySelector('[data-tab="planes-tab"]');
+        if (planesBtn) planesBtn.click();
+      });
+    }
   }
 
   function tabPerfil(displayName, email, age) {
@@ -358,7 +367,7 @@
         '<i class="ph ph-crown" style="font-size:3rem;color:var(--gris-500);"></i>' +
         '<h3 style="margin-top:var(--sp-2);">Sin membresía activa</h3>' +
         '<p class="lead" style="margin-top:var(--sp-1);">Adquiere una membresía para acceder a todos los cursos del Campus Poder Jota.</p>' +
-        '<button class="btn btn--primary" style="margin-top:var(--sp-3);" onclick="document.querySelector(\'[data-tab=\\'planes-tab\\']\').click()">' +
+        '<button class="btn btn--primary" style="margin-top:var(--sp-3);" id="btnGoPlanes">' +
           'Ver Planes <span class="arrow">→</span>' +
         '</button>' +
       '</div>' +
