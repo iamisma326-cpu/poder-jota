@@ -454,9 +454,70 @@
     .admin-export-btn:hover {
       background: rgba(0,128,0,0.2);
     }
+    .admin-realtime-alert {
+      position: fixed;
+      top: calc(var(--header-h) + var(--sp-2));
+      right: var(--sp-3);
+      max-width: 420px;
+      background: var(--gris-900);
+      border: 2px solid rgba(198,255,61,0.35);
+      border-radius: var(--radius);
+      padding: var(--sp-3);
+      z-index: 999;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      animation: slideInRight 0.35s cubic-bezier(0.22,0.61,0.36,1);
+    }
+    .admin-realtime-alert__header {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-1);
+      font-size: 0.8rem;
+      color: var(--lima-voltio);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--sp-1);
+    }
+    .admin-realtime-alert__body {
+      color: var(--crema-andina);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .admin-realtime-alert__body strong {
+      color: var(--lima-voltio);
+    }
+    .admin-realtime-alert__actions {
+      display: flex;
+      gap: var(--sp-1);
+      margin-top: var(--sp-2);
+    }
+    .admin-realtime-alert__btn {
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: opacity var(--t-fast);
+    }
+    .admin-realtime-alert__btn:hover {
+      opacity: 0.8;
+    }
+    .admin-realtime-alert__btn--primary {
+      background: var(--lima-voltio);
+      color: var(--negro);
+    }
+    .admin-realtime-alert__btn--secondary {
+      background: rgba(243,237,225,0.08);
+      color: var(--gris-300);
+    }
     @keyframes slideUp {
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(40px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
   </style>
 </head>
@@ -585,7 +646,7 @@
         return;
       }
 
-      // Cargar admin dashboard
+      // Cargar admin dashboard (setupRealtime se llama al final)
       await loadAdminDashboard();
 
       // Logout link
@@ -683,6 +744,9 @@
     });
 
     renderDashboard();
+
+    // (Re)activar notificaciones en tiempo real cada vez que se carga el dashboard
+    setupRealtime();
   }
 
   function renderDashboard() {
@@ -1031,6 +1095,96 @@
           '</table>' +
         '</div>' +
       '</div>';
+  }
+
+  // ---------- Realtime: notificaciones en vivo ----------
+  var _realtimeChannel = null;
+
+  function setupRealtime() {
+    var sb = getClient();
+    if (!sb) return;
+
+    // Limpiar canal anterior (evita duplicados al recargar dashboard)
+    if (_realtimeChannel) {
+      sb.removeChannel(_realtimeChannel);
+    }
+
+    _realtimeChannel = sb
+      .channel('admin-payments')
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'payments' },
+        function (payload) {
+          var newPayment = payload.new;
+          // Solo notificar de pagos pendientes
+          if (newPayment.status !== 'pending') return;
+
+          // Obtener datos del perfil y membresía
+          var profilePromise = sb
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', newPayment.user_id)
+            .single();
+
+          var planPromise = sb
+            .from('memberships')
+            .select('name')
+            .eq('id', newPayment.membership_id)
+            .single();
+
+          Promise.all([profilePromise, planPromise])
+            .then(function (results) {
+              var profile = results[0].data || {};
+              var plan = results[1].data || {};
+              var name = profile.full_name || profile.email || 'Usuario';
+              var planName = plan.name || 'Membresía';
+              showRealtimeAlert(name, planName, newPayment);
+            })
+            .catch(function () {
+              showRealtimeAlert('Usuario', 'Membresía', newPayment);
+            });
+        }
+      )
+      .subscribe();
+  }
+
+  function showRealtimeAlert(userName, planName, payment) {
+    // Remover alertas anteriores
+    var oldAlerts = document.querySelectorAll('.admin-realtime-alert');
+    for (var i = 0; i < oldAlerts.length; i++) oldAlerts[i].remove();
+
+    var monto = payment.amount || '—';
+
+    var banner = document.createElement('div');
+    banner.className = 'admin-realtime-alert';
+    banner.innerHTML =
+      '<div class="admin-realtime-alert__header">' +
+        '<i class="ph ph-bell-ringing"></i> Nuevo pago recibido' +
+      '</div>' +
+      '<div class="admin-realtime-alert__body">' +
+        '<strong>' + userName + '</strong> acaba de pagar <strong>S/ ' + monto + '</strong> por ' + planName + '.' +
+      '</div>' +
+      '<div class="admin-realtime-alert__actions">' +
+        '<button class="admin-realtime-alert__btn admin-realtime-alert__btn--primary" id="alertReload">🔄 Ver pendientes</button>' +
+        '<button class="admin-realtime-alert__btn admin-realtime-alert__btn--secondary" id="alertDismiss">✕ Ignorar</button>' +
+      '</div>';
+
+    document.body.appendChild(banner);
+
+    // Botón de recargar
+    document.getElementById('alertReload').addEventListener('click', function () {
+      banner.remove();
+      loadAdminDashboard();
+    });
+
+    // Botón de ignorar
+    document.getElementById('alertDismiss').addEventListener('click', function () {
+      banner.remove();
+    });
+
+    // Auto-desaparecer después de 15 segundos
+    setTimeout(function () {
+      if (banner.parentNode) banner.remove();
+    }, 15000);
   }
 
   // ---------- Exportar a XLSX ----------
