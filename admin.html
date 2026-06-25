@@ -182,6 +182,50 @@
       z-index: 1000;
       animation: slideUp 0.3s ease;
     }
+    .admin-search {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-3);
+      background: var(--negro);
+      border: 1px solid rgba(243,237,225,0.1);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem var(--sp-2);
+      transition: border-color var(--t-fast);
+    }
+    .admin-search:focus-within {
+      border-color: var(--lima-voltio);
+    }
+    .admin-search i {
+      color: var(--gris-500);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .admin-search input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--crema-andina);
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    .admin-search input::placeholder {
+      color: var(--gris-500);
+    }
+    .admin-search-clear {
+      background: none;
+      border: none;
+      color: var(--gris-500);
+      font-size: 1rem;
+      padding: 0.2rem;
+      display: none;
+    }
+    .admin-search-clear.visible {
+      display: block;
+    }
+    .admin-search-clear:hover {
+      color: var(--crema-andina);
+    }
     @keyframes slideUp {
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
@@ -235,6 +279,12 @@
   var ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
 
   var sbClient = null;
+  var _searchTerm = '';
+  var _allPending = [];
+  var _allCompleted = [];
+  var _allActiveCount = 0;
+  var _allTotalCount = 0;
+  var _allIngresosMes = 0;
 
   function getClient() {
     if (sbClient) return sbClient;
@@ -352,21 +402,31 @@
       .gte('end_date', new Date().toISOString());
 
     // Calcular estadísticas
-    var pending = (allPayments || []).filter(function (p) { return p.status === 'pending'; });
-    var completed = (allPayments || []).filter(function (p) { return p.status === 'completed'; });
-    var totalIngresosMes = 0;
+    _allPending = (allPayments || []).filter(function (p) { return p.status === 'pending'; });
+    _allCompleted = (allPayments || []).filter(function (p) { return p.status === 'completed'; });
+    _allActiveCount = activeMemberships ? activeMemberships.length : 0;
+    _allTotalCount = allPayments ? allPayments.length : 0;
+    _allIngresosMes = 0;
     var startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    completed.forEach(function (p) {
+    _allCompleted.forEach(function (p) {
       var d = new Date(p.created_at);
       if (d >= startOfMonth) {
-        totalIngresosMes += parseFloat(p.amount) || 0;
+        _allIngresosMes += parseFloat(p.amount) || 0;
       }
     });
 
+    renderDashboard();
+  }
+
+  function renderDashboard() {
     var app = document.getElementById('app');
     if (!app) return;
+
+    // Aplicar filtro de búsqueda
+    var filteredPending = filterPayments(_allPending);
+    var filteredCompleted = filterPayments(_allCompleted);
 
     app.innerHTML =
       '<section class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));">' +
@@ -380,36 +440,58 @@
           // Stats
           '<div class="admin-stats">' +
             '<div class="admin-stat-card admin-stat-card--warning">' +
-              '<div class="admin-stat-card__num">' + pending.length + '</div>' +
+              '<div class="admin-stat-card__num">' + _allPending.length + '</div>' +
               '<div class="admin-stat-card__label">Pendientes</div>' +
             '</div>' +
             '<div class="admin-stat-card admin-stat-card--success">' +
-              '<div class="admin-stat-card__num">' + (activeMemberships ? activeMemberships.length : 0) + '</div>' +
+              '<div class="admin-stat-card__num">' + _allActiveCount + '</div>' +
               '<div class="admin-stat-card__label">Membresías activas</div>' +
             '</div>' +
             '<div class="admin-stat-card">' +
-              '<div class="admin-stat-card__num">S/ ' + totalIngresosMes.toFixed(0) + '</div>' +
+              '<div class="admin-stat-card__num">S/ ' + _allIngresosMes.toFixed(0) + '</div>' +
               '<div class="admin-stat-card__label">Ingresos este mes</div>' +
             '</div>' +
             '<div class="admin-stat-card">' +
-              '<div class="admin-stat-card__num">' + (allPayments ? allPayments.length : 0) + '</div>' +
+              '<div class="admin-stat-card__num">' + _allTotalCount + '</div>' +
               '<div class="admin-stat-card__label">Total pagos</div>' +
             '</div>' +
           '</div>' +
 
+          // Buscador
+          '<div class="admin-search">' +
+            '<i class="ph ph-magnifying-glass"></i>' +
+            '<input type="text" id="adminSearchInput" placeholder="Buscar por nombre, email o plan..." value="' + _searchTerm + '" />' +
+            '<button class="admin-search-clear' + (_searchTerm ? ' visible' : '') + '" id="adminSearchClear">✕</button>' +
+          '</div>' +
+
           // Pagos pendientes
-          renderPendingTable(pending) +
+          renderPendingTable(filteredPending) +
 
           // Pagos completados
-          renderCompletedTable(completed) +
+          renderCompletedTable(filteredCompleted) +
         '</div>' +
       '</section>';
   }
 
+  function filterPayments(items) {
+    if (!_searchTerm) return items;
+    var term = _searchTerm.toLowerCase();
+    return items.filter(function (p) {
+      var profile = p.profiles || {};
+      var name = (profile.full_name || '').toLowerCase();
+      var email = (profile.email || '').toLowerCase();
+      var plan = p.memberships ? (p.memberships.name || '').toLowerCase() : '';
+      return name.indexOf(term) !== -1 || email.indexOf(term) !== -1 || plan.indexOf(term) !== -1;
+    });
+  }
+
   function renderPendingTable(pending) {
     if (pending.length === 0) {
+      var msg = _searchTerm
+        ? 'No hay pagos pendientes que coincidan con "' + _searchTerm + '".'
+        : 'No hay pagos pendientes. Todo al día.';
       return '<div class="admin-section-title" style="margin-top:0;"><i class="ph ph-check-circle"></i> Pendientes</div>' +
-        '<div class="admin-empty"><p>No hay pagos pendientes. Todo al día.</p></div>';
+        '<div class="admin-empty"><p>' + msg + '</p></div>';
     }
 
     var rows = '';
@@ -454,8 +536,11 @@
 
   function renderCompletedTable(completed) {
     if (completed.length === 0) {
+      var msg = _searchTerm
+        ? 'No hay pagos completados que coincidan con "' + _searchTerm + '".'
+        : 'Sin pagos completados aún.';
       return '<div class="admin-section-title"><i class="ph ph-clock"></i> Historial</div>' +
-        '<div class="admin-empty"><p>Sin pagos completados aún.</p></div>';
+        '<div class="admin-empty"><p>' + msg + '</p></div>';
     }
 
     var rows = '';
@@ -492,6 +577,23 @@
         '</div>' +
       '</div>';
   }
+
+  // ---------- Búsqueda en tiempo real ----------
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'adminSearchInput') {
+      _searchTerm = e.target.value;
+      renderDashboard();
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target.id === 'adminSearchClear') {
+      _searchTerm = '';
+      renderDashboard();
+      var inp = document.getElementById('adminSearchInput');
+      if (inp) inp.focus();
+    }
+  });
 
   // ---------- Delegación de eventos para botones de aprobar/rechazar ----------
   document.addEventListener('click', async function (e) {
