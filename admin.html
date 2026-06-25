@@ -264,6 +264,91 @@
       filter: invert(0.7);
       cursor: pointer;
     }
+    .admin-chart {
+      background: var(--gris-900);
+      border: 1px solid rgba(243,237,225,0.06);
+      border-radius: var(--radius);
+      padding: var(--sp-4);
+      margin-bottom: var(--sp-3);
+    }
+    .admin-chart__title {
+      font-family: var(--font-display);
+      font-size: var(--fs-h3);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: var(--sp-1);
+    }
+    .admin-chart__title i {
+      color: var(--lima-voltio);
+      font-size: 1.3rem;
+    }
+    .admin-chart__desc {
+      color: var(--gris-500);
+      font-size: 0.8rem;
+      margin-bottom: var(--sp-3);
+    }
+    .admin-chart__bars {
+      display: flex;
+      align-items: flex-end;
+      gap: var(--sp-2);
+      height: 200px;
+      padding-bottom: 28px;
+      position: relative;
+      overflow-x: auto;
+    }
+    .admin-chart__col {
+      flex: 1;
+      min-width: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      position: relative;
+    }
+    .admin-chart__bar {
+      width: 100%;
+      max-width: 60px;
+      background: linear-gradient(to top, var(--lima-voltio), rgba(198,255,61,0.4));
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      min-height: 4px;
+      transition: height 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+      position: relative;
+      cursor: pointer;
+    }
+    .admin-chart__bar:hover {
+      opacity: 0.8;
+    }
+    .admin-chart__bar-value {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      color: var(--crema-andina);
+      white-space: nowrap;
+    }
+    .admin-chart__col-label {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--gris-500);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .admin-chart__empty {
+      text-align: center;
+      width: 100%;
+      padding: var(--sp-4);
+      color: var(--gris-500);
+    }
     .admin-status-filters {
       display: flex;
       gap: var(--sp-1);
@@ -522,6 +607,9 @@
             '</div>' +
           '</div>' +
 
+          // Gráfico de ingresos mensuales
+          renderIncomeChart() +
+
           // Filtros
           '<div class="admin-filters">' +
             // Buscador
@@ -630,6 +718,73 @@
           '</table>' +
         '</div>' +
       '</div>';
+  }
+
+  function renderIncomeChart() {
+    // Calcular ingresos por mes (solo completed)
+    var completed = _allPayments.filter(function (p) { return p.status === 'completed'; });
+    if (completed.length === 0) {
+      return '<div class="admin-chart">' +
+        '<div class="admin-chart__title"><i class="ph ph-trend-up"></i> Ingresos Mensuales</div>' +
+        '<div class="admin-chart__empty">Aún no hay pagos completados para mostrar.</div>' +
+      '</div>';
+    }
+
+    // Generar últimos 6 meses
+    var months = [];
+    var now = new Date();
+    for (var m = 5; m >= 0; m--) {
+      var d = new Date(now.getFullYear(), now.getMonth() - m, 1);
+      months.push({
+        key: d.getFullYear() + '-' + (d.getMonth() + 1),
+        label: d.toLocaleDateString('es-PE', { month: 'short' }).replace(/\./g, '').toUpperCase() + ' ' + d.getFullYear().toString().slice(-2),
+        total: 0
+      });
+    }
+
+    // Sumar ingresos de cada mes
+    completed.forEach(function (p) {
+      var date = new Date(p.created_at);
+      var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+      for (var i = 0; i < months.length; i++) {
+        if (months[i].key === key) {
+          months[i].total += parseFloat(p.amount) || 0;
+          break;
+        }
+      }
+    });
+
+    // Encontrar el valor máximo
+    var maxVal = 0;
+    for (var i = 0; i < months.length; i++) {
+      if (months[i].total > maxVal) maxVal = months[i].total;
+    }
+    if (maxVal === 0) maxVal = 1;
+
+    // Generar HTML de barras
+    var barsHtml = '';
+    for (var i = 0; i < months.length; i++) {
+      var month = months[i];
+      var heightPct = maxVal > 0 ? (month.total / maxVal) * 100 : 0;
+      if (heightPct < 2) heightPct = 0; // ocultar barras de 0
+      var valueHtml = month.total > 0
+        ? '<span class="admin-chart__bar-value">S/ ' + month.total.toFixed(0) + '</span>'
+        : '';
+      var barStyle = heightPct > 0 ? 'height:' + heightPct + '%' : 'height:2px;background:rgba(243,237,225,0.08);';
+      barsHtml +=
+        '<div class="admin-chart__col">' +
+          '<div class="admin-chart__bar" style="' + barStyle + '">' +
+            valueHtml +
+          '</div>' +
+          '<span class="admin-chart__col-label">' + month.label + '</span>' +
+        '</div>';
+    }
+
+    return '<div class="admin-chart">' +
+      '<div class="admin-chart__title"><i class="ph ph-trend-up"></i> Ingresos Mensuales</div>' +
+      '<div class="admin-chart__desc">Últimos 6 meses · Solo pagos completados</div>' +
+      '<div class="admin-chart__bars">' + barsHtml + '</div>' +
+    '</div>';
   }
 
   function renderPendingTable(pending) {
