@@ -11,6 +11,7 @@ export default defineConfig({
         fitness: resolve(__dirname, 'fitness.html'),
         futbol: resolve(__dirname, 'futbol.html'),
         campus: resolve(__dirname, 'campus.html'),
+        precios: resolve(__dirname, 'precios.html'),
         contacto: resolve(__dirname, 'contacto.html'),
       },
     },
