@@ -13,7 +13,7 @@
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" />
   <!-- Phosphor Icons -->
   <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
-  <!-- Supabase JS -->
+  <!-- Supabase JS (global) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -56,18 +56,7 @@
     </div>
   </footer>
 
-  <script type="module">
-    import { getSupabase, getSession, getUserProfile } from './js/supabase.js';
-    import { getActiveMembership, getMembershipPlans, getPaymentHistory, initUserMenu, logout, updateProfile } from './js/auth.js';
-    import { initPerfil } from './js/perfil.js';
-
-    // Año del footer
-    const yearEl = document.getElementById('year');
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-    // Inicializar navbar y perfil
-    initUserMenu();
-    initPerfil();
-  </script>
+  <!-- Bundle: todo auto-contenido (sin ES modules, usa el supabase global del CDN) -->
+  <script src="js/perfil-bundle.js"></script>
 </body>
 </html>
