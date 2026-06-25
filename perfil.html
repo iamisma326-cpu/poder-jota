@@ -150,6 +150,20 @@
     return res.data;
   }
 
+  async function getPendingPayments(userId) {
+    var sb = getClient();
+    if (!sb) return [];
+    var res = await sb
+      .from('payments')
+      .select('*, memberships(name)')
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (res.error) return [];
+    return res.data;
+  }
+
   async function updateProfile(userId, updates) {
     var sb = getClient();
     if (!sb) return null;
@@ -240,17 +254,19 @@
     var user = session.user;
     var profile = await getUserProfile(user.id);
 
-    var activeMembership, plans, payments;
+    var activeMembership, plans, payments, pendingPayments;
     try { activeMembership = await getActiveMembership(user.id); } catch (e) {}
     try { plans = await getMembershipPlans(); } catch (e) {}
     try { payments = await getPaymentHistory(user.id); } catch (e) {}
+    try { pendingPayments = await getPendingPayments(user.id); } catch (e) {}
 
-    renderPerfil(user, profile, activeMembership, plans || [], payments || []);
+    renderPerfil(user, profile, activeMembership, plans || [], payments || [], pendingPayments || []);
+    setupPaymentButtons();
     setupTabs();
     setupAgeForm(user.id);
   }
 
-  function renderPerfil(user, profile, activeMembership, plans, payments) {
+  function renderPerfil(user, profile, activeMembership, plans, payments, pendingPayments) {
     var displayName = (user.user_metadata && user.user_metadata.full_name) || (profile && profile.full_name) || user.email.split('@')[0] || 'Usuario';
     var avatarUrl = user.user_metadata && user.user_metadata.avatar_url;
     var initial = displayName.charAt(0).toUpperCase();
@@ -259,6 +275,13 @@
 
     var app = document.getElementById('app');
     if (!app) return;
+
+    var memBadge = '';
+    if (activeMembership) {
+      memBadge = '<span class="perfil-badge active">Activa</span>';
+    } else if (pendingPayments && pendingPayments.length > 0) {
+      memBadge = '<span class="perfil-badge" style="background:rgba(249,168,37,0.15);color:var(--warning);">Pendiente</span>';
+    }
 
     app.innerHTML =
       '<section class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));">' +
@@ -278,7 +301,7 @@
                 '<div class="perfil-sidebar-nav">' +
                   '<button class="perfil-tab-btn active" data-tab="perfil-tab"><i class="ph ph-user-circle"></i> Mi Perfil</button>' +
                   '<button class="perfil-tab-btn" data-tab="membresia-tab"><i class="ph ph-crown"></i> Mi Membresía' +
-                    (activeMembership ? '<span class="perfil-badge active">Activa</span>' : '') +
+                    memBadge +
                   '</button>' +
                   '<button class="perfil-tab-btn" data-tab="planes-tab"><i class="ph ph-shopping-bag-open"></i> Comprar Membresía</button>' +
                   '<button class="perfil-tab-btn" data-tab="historial-tab"><i class="ph ph-clock"></i> Historial</button>' +
@@ -289,7 +312,7 @@
             // Main
             '<main class="perfil-main">' +
               tabPerfil(displayName, email, age) +
-              tabMembresia(activeMembership) +
+              tabMembresia(activeMembership, pendingPayments) +
               tabPlanes(plans) +
               tabHistorial(payments) +
             '</main>' +
@@ -333,7 +356,8 @@
     '</div>';
   }
 
-  function tabMembresia(membership) {
+  function tabMembresia(membership, pendingPayments) {
+    // Si hay membresía activa
     if (membership) {
       var features = '';
       try {
@@ -362,6 +386,21 @@
       '</div>';
     }
 
+    // Si hay pago pendiente (sin membresía activa aún)
+    if (pendingPayments && pendingPayments.length > 0) {
+      return '<div class="perfil-tab-content" id="membresia-tab">' +
+        '<div class="perfil-card" style="border-color:rgba(249,168,37,0.25);">' +
+          '<div class="pending-notice">' +
+            '<i class="ph ph-hourglass"></i>' +
+            '<h3>Pago pendiente de verificación</h3>' +
+            '<p>Jota está revisando tu pago de <strong>S/ ' + pendingPayments[0].amount + '</strong> por <strong>' + (pendingPayments[0].memberships ? pendingPayments[0].memberships.name : 'Membresía') + '</strong>.</p>' +
+            '<p style="font-size:0.85rem;color:var(--gris-500);">Esto suele tomar unos minutos. Si pasa mucho tiempo, avísale por WhatsApp.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // Sin membresía y sin pagos pendientes
     return '<div class="perfil-tab-content" id="membresia-tab">' +
       '<div class="perfil-card" style="text-align:center;padding:var(--sp-6);">' +
         '<i class="ph ph-crown" style="font-size:3rem;color:var(--gris-500);"></i>' +
@@ -494,6 +533,118 @@
       } catch (e) {
         alert('Error al guardar la edad. Intenta de nuevo.');
       }
+    });
+  }
+
+  // ---------- Pago con Yape ----------
+  var YAPE_QR_URL = 'https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782428770/WhatsApp_Image_2026-06-25_at_17.41.00_op9iqb.jpg';
+  var YAPE_NUMBER = '922 375 598';
+
+  function setupPaymentButtons() {
+    var btns = document.querySelectorAll('.perfil-btn-comprar');
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var planId = btn.getAttribute('data-plan-id');
+        var planName = btn.getAttribute('data-plan-name');
+        var planPrice = btn.getAttribute('data-plan-price');
+        showPaymentModal(planId, planName, planPrice);
+      });
+    });
+  }
+
+  function showPaymentModal(planId, planName, planPrice) {
+    // Crear overlay
+    var overlay = document.createElement('div');
+    overlay.className = 'payment-overlay';
+    overlay.id = 'paymentOverlay';
+
+    overlay.innerHTML =
+      '<div class="payment-modal">' +
+        '<button class="payment-modal__close" id="btnCloseModal" aria-label="Cerrar">✕</button>' +
+        '<div class="payment-modal__title">' + planName + '</div>' +
+        '<div class="payment-modal__price">S/ ' + planPrice + '</div>' +
+        '<div class="payment-modal__qr">' +
+          '<img src="' + YAPE_QR_URL + '" alt="QR Yape" />' +
+        '</div>' +
+        '<div class="payment-modal__account">Yapea al número <span>' + YAPE_NUMBER + '</span></div>' +
+        '<p style="font-size:0.8rem;color:var(--gris-500);margin-bottom:var(--sp-3);">(Jota - Poder Jota)</p>' +
+        '<ol class="payment-modal__instructions">' +
+          '<li><i class="ph ph-phone"></i> Abre Yape en tu celular</li>' +
+          '<li><i class="ph ph-qr-code"></i> Escanea el código QR</li>' +
+          '<li><i class="ph ph-currency-circle-dollar"></i> Paga el monto exacto: <strong>S/ ' + planPrice + '</strong></li>' +
+          '<li><i class="ph ph-arrow-left"></i> Vuelve aquí y presiona "Ya pagué"</li>' +
+        '</ol>' +
+        '<div class="payment-modal__actions">' +
+          '<button class="btn payment-btn-submit" id="btnYaPague">✅ YA PAGUÉ</button>' +
+          '<button class="payment-btn-cancel" id="btnCancelPago">Cancelar</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+
+    // Cerrar modal
+    function closeModal() {
+      overlay.remove();
+    }
+
+    document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+    document.getElementById('btnCancelPago').addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal();
+    });
+
+    // Ya pagué
+    document.getElementById('btnYaPague').addEventListener('click', async function () {
+      var sb = getClient();
+      if (!sb) {
+        alert('Error de conexión. Intenta de nuevo.');
+        return;
+      }
+
+      var session = await getSession();
+      if (!session) {
+        window.location.href = 'login.html?redirect=perfil.html';
+        return;
+      }
+
+      // Deshabilitar botón para evitar doble clic
+      var btn = document.getElementById('btnYaPague');
+      btn.disabled = true;
+      btn.textContent = '⏳ Enviando...';
+
+      var res = await sb.from('payments').insert({
+        user_id: session.user.id,
+        membership_id: planId,
+        amount: parseFloat(planPrice),
+        payment_method: 'yape',
+        payment_provider: 'manual',
+        status: 'pending'
+      });
+
+      if (res.error) {
+        console.error('Error al registrar pago:', error);
+        btn.disabled = false;
+        btn.textContent = '✅ YA PAGUÉ';
+        alert('Error al registrar el pago. Intenta de nuevo.');
+        return;
+      }
+
+      // Mostrar mensaje de éxito
+      overlay.innerHTML =
+        '<div class="payment-modal">' +
+          '<div class="payment-success">' +
+            '<i class="ph-fill ph-check-circle"></i>' +
+            '<h3>¡Pago reportado!</h3>' +
+            '<p>Jota revisará tu pago y activará tu membresía pronto.</p>' +
+            '<p style="margin-top:var(--sp-2);font-size:0.85rem;color:var(--gris-500);">Si pasa mucho tiempo, escríbele por <a href="https://wa.me/51922375598" target="_blank" style="color:var(--lima-voltio);font-weight:600;">WhatsApp</a>.</p>' +
+            '<button class="btn btn--primary" style="margin-top:var(--sp-3);width:100%;justify-content:center;" id="btnCerrarExito">Entendido</button>' +
+          '</div>' +
+        '</div>';
+
+      document.getElementById('btnCerrarExito').addEventListener('click', function () {
+        overlay.remove();
+        window.location.reload();
+      });
     });
   }
 

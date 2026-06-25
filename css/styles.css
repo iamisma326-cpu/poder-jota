@@ -2417,6 +2417,206 @@ details.card[open] summary::before {
   color: var(--error);
 }
 
+/* ============================================================
+   27. MODAL DE PAGO (Yape QR)
+   ============================================================ */
+.payment-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-3);
+  animation: fadeIn 0.2s ease;
+}
+
+.payment-modal {
+  background: var(--gris-900);
+  border: 1px solid rgba(243,237,225,0.1);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  animation: scaleIn 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.payment-modal__close {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(243,237,225,0.06);
+  color: var(--gris-300);
+  font-size: 1.2rem;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.payment-modal__close:hover {
+  background: rgba(211,47,47,0.15);
+  color: var(--error);
+}
+
+.payment-modal__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  letter-spacing: 0.5px;
+  margin-bottom: var(--sp-1);
+}
+
+.payment-modal__price {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--lima-voltio);
+  line-height: 1;
+  margin-bottom: var(--sp-3);
+}
+
+.payment-modal__qr {
+  width: 220px;
+  height: 220px;
+  margin: 0 auto var(--sp-3);
+  border-radius: var(--radius);
+  border: 2px solid rgba(243,237,225,0.1);
+  overflow: hidden;
+  background: var(--blanco);
+  padding: 8px;
+}
+.payment-modal__qr img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.payment-modal__account {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--crema-andina);
+  margin-bottom: var(--sp-1);
+}
+.payment-modal__account span {
+  color: var(--amarillo-oro);
+}
+
+.payment-modal__instructions {
+  text-align: left;
+  background: rgba(198,255,61,0.06);
+  border: 1px solid rgba(198,255,61,0.12);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.payment-modal__instructions li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  color: var(--gris-300);
+  font-size: 0.85rem;
+}
+.payment-modal__instructions li i {
+  color: var(--lima-voltio);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.payment-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.payment-btn-submit {
+  width: 100%;
+  justify-content: center;
+  background: var(--success);
+  color: var(--blanco);
+  font-size: 1.05rem;
+  padding: 1rem;
+}
+.payment-btn-submit:hover {
+  background: #388E3C;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(46,125,50,0.35);
+}
+
+.payment-btn-cancel {
+  width: 100%;
+  justify-content: center;
+  background: transparent;
+  color: var(--gris-300);
+  border: none;
+  font-size: 0.85rem;
+  padding: 0.6rem;
+}
+.payment-btn-cancel:hover {
+  color: var(--crema-andina);
+}
+
+.payment-success {
+  text-align: center;
+  padding: var(--sp-4);
+}
+.payment-success i {
+  font-size: 3rem;
+  color: var(--success);
+  margin-bottom: var(--sp-2);
+}
+.payment-success h3 {
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+  font-size: var(--fs-h3);
+  margin-bottom: var(--sp-1);
+}
+.payment-success p {
+  color: var(--gris-300);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.pending-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+}
+.pending-notice i {
+  font-size: 2.5rem;
+  color: var(--warning);
+}
+.pending-notice h3 {
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+  font-size: var(--fs-h3);
+}
+.pending-notice p {
+  color: var(--gris-300);
+  font-size: 0.9rem;
+  text-align: center;
+  max-width: 36ch;
+}
+
 /* Responsive perfil */
 @media (max-width: 768px) {
   .perfil-layout {

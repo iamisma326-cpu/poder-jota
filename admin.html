@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Poder Jota</title>
+  <meta name="description" content="Panel de administración de Poder Jota." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/animaciones.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <!-- Supabase JS (global) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    .admin-stat-card {
+      background: var(--gris-900);
+      border: 1px solid rgba(243,237,225,0.08);
+      border-radius: var(--radius);
+      padding: var(--sp-3);
+      text-align: center;
+    }
+    .admin-stat-card__num {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--lima-voltio);
+      line-height: 1;
+    }
+    .admin-stat-card__label {
+      font-size: 0.78rem;
+      color: var(--gris-500);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.3rem;
+    }
+    .admin-stat-card--warning .admin-stat-card__num {
+      color: var(--warning);
+    }
+    .admin-stat-card--success .admin-stat-card__num {
+      color: var(--success);
+    }
+    .admin-table-wrap {
+      overflow-x: auto;
+      margin-top: var(--sp-3);
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .admin-table th {
+      text-align: left;
+      padding: var(--sp-1) var(--sp-2);
+      color: var(--gris-500);
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid rgba(243,237,225,0.08);
+    }
+    .admin-table td {
+      padding: var(--sp-2);
+      border-bottom: 1px solid rgba(243,237,225,0.04);
+      color: var(--gris-300);
+      vertical-align: middle;
+    }
+    .admin-table tr:hover td {
+      background: rgba(198,255,61,0.03);
+    }
+    .admin-table .user-cell {
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-table .user-cell strong {
+      color: var(--crema-andina);
+      font-size: 0.9rem;
+    }
+    .admin-table .user-cell span {
+      font-size: 0.78rem;
+      color: var(--gris-500);
+    }
+    .admin-actions {
+      display: flex;
+      gap: var(--sp-1);
+    }
+    .admin-btn {
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: opacity var(--t-fast);
+    }
+    .admin-btn:hover {
+      opacity: 0.8;
+    }
+    .admin-btn--approve {
+      background: rgba(46,125,50,0.15);
+      color: var(--success);
+      border: 1px solid rgba(46,125,50,0.3);
+    }
+    .admin-btn--reject {
+      background: rgba(211,47,47,0.15);
+      color: var(--error);
+      border: 1px solid rgba(211,47,47,0.3);
+    }
+    .admin-empty {
+      text-align: center;
+      padding: var(--sp-5);
+      color: var(--gris-500);
+    }
+    .admin-section-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-h3);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: var(--sp-4);
+      margin-bottom: var(--sp-2);
+    }
+    .admin-section-title i {
+      color: var(--lima-voltio);
+      font-size: 1.3rem;
+    }
+    .admin-deny {
+      text-align: center;
+      padding: var(--sp-6);
+    }
+    .admin-deny i {
+      font-size: 3rem;
+      color: var(--error);
+      margin-bottom: var(--sp-2);
+    }
+    .admin-deny h2 {
+      font-family: var(--font-display);
+      font-size: var(--fs-h2);
+      letter-spacing: 0.5px;
+    }
+    .admin-toast {
+      position: fixed;
+      bottom: var(--sp-3);
+      right: var(--sp-3);
+      background: var(--success);
+      color: var(--blanco);
+      padding: var(--sp-2) var(--sp-3);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.85rem;
+      z-index: 1000;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="perfil.html">Mi Perfil</a>
+        <a href="admin.html" class="active">Admin</a>
+        <a href="contacto.html" class="nav__cta--shine">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ APP ============ -->
+  <div id="app">
+    <div class="perfil-loading">
+      <div class="perfil-loading-spinner"></div>
+      <p>Cargando panel de administración...</p>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer" style="margin-top:auto;">
+    <div class="container">
+      <div class="footer__bottom">
+        © <span id="year"></span> Poder Jota · Panel de Administración
+      </div>
+    </div>
+  </footer>
+
+  <script>
+(function () {
+  'use strict';
+
+  var SUPABASE_URL = 'https://cgqerygskfuctvfwgpxv.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_I8iqpE0e6IbDwyxVwpaQJA_odh4PT3g';
+  var ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
+
+  var sbClient = null;
+
+  function getClient() {
+    if (sbClient) return sbClient;
+    if (typeof supabase !== 'undefined') {
+      sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+        },
+      });
+    }
+    return sbClient;
+  }
+
+  async function getSession() {
+    var sb = getClient();
+    if (!sb) return null;
+    var res = await sb.auth.getSession();
+    if (res.error || !res.data.session) return null;
+    return res.data.session;
+  }
+
+  async function logout() {
+    var sb = getClient();
+    if (!sb) return;
+    await sb.auth.signOut();
+  }
+
+  function showToast(msg, isError) {
+    var existing = document.querySelector('.admin-toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.className = 'admin-toast';
+    if (isError) toast.style.background = 'var(--error)';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(function () { toast.remove(); }, 3000);
+  }
+
+  // ---------- Inicialización ----------
+  document.addEventListener('DOMContentLoaded', async function () {
+    try {
+      var yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      var session = await getSession();
+      if (!session) {
+        window.location.href = 'login.html?redirect=admin.html';
+        return;
+      }
+
+      if (!ADMIN_EMAILS.includes(session.user.email)) {
+        document.getElementById('app').innerHTML =
+          '<section class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));">' +
+            '<div class="container">' +
+              '<div class="admin-deny">' +
+                '<i class="ph ph-shield-slash"></i>' +
+                '<h2>Acceso denegado</h2>' +
+                '<p class="lead" style="margin-top:var(--sp-1);">Solo los administradores pueden acceder a este panel.</p>' +
+                '<a href="index.html" class="btn btn--primary" style="margin-top:var(--sp-3);">Volver al inicio</a>' +
+              '</div>' +
+            '</div>' +
+          '</section>';
+        return;
+      }
+
+      // Cargar admin dashboard
+      await loadAdminDashboard();
+
+      // Logout link
+      var navLinks = document.getElementById('navLinks');
+      if (navLinks) {
+        var logoutBtn = document.createElement('button');
+        logoutBtn.className = 'nav__dropdown-link nav__dropdown-link--logout';
+        logoutBtn.style.display = 'inline-flex';
+        logoutBtn.innerHTML = '<i class="ph ph-sign-out"></i> Cerrar Sesión';
+        logoutBtn.addEventListener('click', async function () {
+          await logout();
+          window.location.href = 'index.html';
+        });
+        var cta = navLinks.querySelector('.nav__cta--shine');
+        if (cta) navLinks.insertBefore(logoutBtn, cta);
+        else navLinks.appendChild(logoutBtn);
+      }
+
+    } catch (e) {
+      console.error('Error en admin:', e);
+      document.getElementById('app').innerHTML = '<p class="lead" style="text-align:center;padding:4rem;color:var(--error);">Error al cargar el panel.</p>';
+    }
+  });
+
+  // ---------- Dashboard ----------
+  async function loadAdminDashboard() {
+    var sb = getClient();
+    if (!sb) return;
+
+    // Obtener todos los pagos con información del usuario y membresía
+    var { data: allPayments, error: payError } = await sb
+      .from('payments')
+      .select('*, memberships(name), profiles!user_id(email, full_name)')
+      .order('created_at', { ascending: false });
+
+    if (payError) {
+      console.error('Error fetching payments:', payError);
+      document.getElementById('app').innerHTML = '<p class="lead" style="text-align:center;padding:4rem;color:var(--error);">Error al cargar los pagos.</p>';
+      return;
+    }
+
+    // Obtener membresías activas
+    var { data: activeMemberships, error: memError } = await sb
+      .from('user_memberships')
+      .select('*')
+      .eq('active', true)
+      .gte('end_date', new Date().toISOString());
+
+    // Calcular estadísticas
+    var pending = (allPayments || []).filter(function (p) { return p.status === 'pending'; });
+    var completed = (allPayments || []).filter(function (p) { return p.status === 'completed'; });
+    var totalIngresosMes = 0;
+    var startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    completed.forEach(function (p) {
+      var d = new Date(p.created_at);
+      if (d >= startOfMonth) {
+        totalIngresosMes += parseFloat(p.amount) || 0;
+      }
+    });
+
+    var app = document.getElementById('app');
+    if (!app) return;
+
+    app.innerHTML =
+      '<section class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));">' +
+        '<div class="container">' +
+          '<div class="section-head">' +
+            '<span class="eyebrow">Admin</span>' +
+            '<h2 class="display h1">Panel de Administración</h2>' +
+            '<p class="lead">Gestiona los pagos y membresías de los usuarios.</p>' +
+          '</div>' +
+
+          // Stats
+          '<div class="admin-stats">' +
+            '<div class="admin-stat-card admin-stat-card--warning">' +
+              '<div class="admin-stat-card__num">' + pending.length + '</div>' +
+              '<div class="admin-stat-card__label">Pendientes</div>' +
+            '</div>' +
+            '<div class="admin-stat-card admin-stat-card--success">' +
+              '<div class="admin-stat-card__num">' + (activeMemberships ? activeMemberships.length : 0) + '</div>' +
+              '<div class="admin-stat-card__label">Membresías activas</div>' +
+            '</div>' +
+            '<div class="admin-stat-card">' +
+              '<div class="admin-stat-card__num">S/ ' + totalIngresosMes.toFixed(0) + '</div>' +
+              '<div class="admin-stat-card__label">Ingresos este mes</div>' +
+            '</div>' +
+            '<div class="admin-stat-card">' +
+              '<div class="admin-stat-card__num">' + (allPayments ? allPayments.length : 0) + '</div>' +
+              '<div class="admin-stat-card__label">Total pagos</div>' +
+            '</div>' +
+          '</div>' +
+
+          // Pagos pendientes
+          renderPendingTable(pending) +
+
+          // Pagos completados
+          renderCompletedTable(completed) +
+        '</div>' +
+      '</section>';
+  }
+
+  function renderPendingTable(pending) {
+    if (pending.length === 0) {
+      return '<div class="admin-section-title" style="margin-top:0;"><i class="ph ph-check-circle"></i> Pendientes</div>' +
+        '<div class="admin-empty"><p>No hay pagos pendientes. Todo al día.</p></div>';
+    }
+
+    var rows = '';
+    for (var i = 0; i < pending.length; i++) {
+      var p = pending[i];
+      var profile = p.profiles || {};
+      var name = profile.full_name || '—';
+      var email = profile.email || '—';
+      var planName = p.memberships ? p.memberships.name : '—';
+      var date = new Date(p.created_at).toLocaleDateString('es-PE', {
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+
+      rows +=
+        '<tr>' +
+          '<td><div class="user-cell"><strong>' + name + '</strong><span>' + email + '</span></div></td>' +
+          '<td>' + planName + '</td>' +
+          '<td><strong>S/ ' + p.amount + '</strong></td>' +
+          '<td>' + date + '</td>' +
+          '<td>' +
+            '<div class="admin-actions">' +
+              '<button class="admin-btn admin-btn--approve btn-approve" data-id="' + p.id + '">✅ Activar</button>' +
+              '<button class="admin-btn admin-btn--reject btn-reject" data-id="' + p.id + '">✕ Rechazar</button>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+    }
+
+    return '' +
+      '<div class="admin-section-title"><i class="ph ph-hourglass"></i> Pendientes <span style="font-family:var(--font-body);font-size:0.8rem;color:var(--gris-500);">(' + pending.length + ')</span></div>' +
+      '<div class="perfil-card" style="padding:0;overflow:hidden;">' +
+        '<div class="admin-table-wrap">' +
+          '<table class="admin-table">' +
+            '<thead><tr>' +
+              '<th>Usuario</th><th>Plan</th><th>Monto</th><th>Fecha</th><th>Acción</th>' +
+            '</tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderCompletedTable(completed) {
+    if (completed.length === 0) {
+      return '<div class="admin-section-title"><i class="ph ph-clock"></i> Historial</div>' +
+        '<div class="admin-empty"><p>Sin pagos completados aún.</p></div>';
+    }
+
+    var rows = '';
+    for (var i = 0; i < Math.min(completed.length, 20); i++) {
+      var p = completed[i];
+      var profile = p.profiles || {};
+      var name = profile.full_name || '—';
+      var email = profile.email || '—';
+      var planName = p.memberships ? p.memberships.name : '—';
+      var date = new Date(p.created_at).toLocaleDateString('es-PE', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+
+      rows +=
+        '<tr>' +
+          '<td><div class="user-cell"><strong>' + name + '</strong><span>' + email + '</span></div></td>' +
+          '<td>' + planName + '</td>' +
+          '<td><strong>S/ ' + p.amount + '</strong></td>' +
+          '<td>' + date + '</td>' +
+          '<td><span style="color:var(--success);font-weight:700;">✓ Completado</span></td>' +
+        '</tr>';
+    }
+
+    return '' +
+      '<div class="admin-section-title"><i class="ph ph-clock"></i> Historial <span style="font-family:var(--font-body);font-size:0.8rem;color:var(--gris-500);">(últimos 20)</span></div>' +
+      '<div class="perfil-card" style="padding:0;overflow:hidden;">' +
+        '<div class="admin-table-wrap">' +
+          '<table class="admin-table">' +
+            '<thead><tr>' +
+              '<th>Usuario</th><th>Plan</th><th>Monto</th><th>Fecha</th><th>Estado</th>' +
+            '</tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>';
+  }
+
+  // ---------- Delegación de eventos para botones de aprobar/rechazar ----------
+  document.addEventListener('click', async function (e) {
+    var target = e.target.closest('.btn-approve, .btn-reject');
+    if (!target) return;
+
+    var paymentId = target.getAttribute('data-id');
+    var isApprove = target.classList.contains('btn-approve');
+    var sb = getClient();
+    if (!sb) return;
+
+    if (isApprove) {
+      // Obtener datos del pago
+      var { data: payment, error: fetchErr } = await sb
+        .from('payments')
+        .select('*, memberships(*)')
+        .eq('id', paymentId)
+        .single();
+
+      if (fetchErr || !payment) {
+        showToast('Error al obtener datos del pago', true);
+        return;
+      }
+
+      // Calcular fecha de fin
+      var durationDays = (payment.memberships && payment.memberships.duration_days) || 30;
+      var endDate = new Date();
+      endDate.setDate(endDate.getDate() + durationDays);
+
+      // Insertar membresía
+      var { error: memErr } = await sb
+        .from('user_memberships')
+        .insert({
+          user_id: payment.user_id,
+          membership_id: payment.membership_id,
+          start_date: new Date().toISOString(),
+          end_date: endDate.toISOString(),
+          active: true
+        });
+
+      if (memErr) {
+        console.error('Error creating membership:', memErr);
+        showToast('Error al crear membresía', true);
+        return;
+      }
+
+      // Actualizar pago
+      var { error: updErr } = await sb
+        .from('payments')
+        .update({ status: 'completed', updated_at: new Date().toISOString() })
+        .eq('id', paymentId);
+
+      if (updErr) {
+        console.error('Error updating payment:', updErr);
+        showToast('Error al actualizar pago', true);
+        return;
+      }
+
+      showToast('✅ Membresía activada correctamente');
+    } else {
+      // Rechazar pago
+      var { error: updErr } = await sb
+        .from('payments')
+        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .eq('id', paymentId);
+
+      if (updErr) {
+        showToast('Error al rechazar pago', true);
+        return;
+      }
+
+      showToast('✕ Pago rechazado');
+    }
+
+    // Recargar dashboard
+    await loadAdminDashboard();
+  });
+
+})();
+  </script>
+</body>
+</html>
