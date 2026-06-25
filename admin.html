@@ -226,6 +226,69 @@
     .admin-search-clear:hover {
       color: var(--crema-andina);
     }
+    .admin-filters {
+      display: flex;
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-2);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .admin-date-input {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-1);
+      background: var(--negro);
+      border: 1px solid rgba(243,237,225,0.1);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem var(--sp-2);
+      transition: border-color var(--t-fast);
+    }
+    .admin-date-input:focus-within {
+      border-color: var(--lima-voltio);
+    }
+    .admin-date-input i {
+      color: var(--gris-500);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .admin-date-input input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--crema-andina);
+      font-size: 0.8rem;
+      width: 130px;
+      color-scheme: dark;
+    }
+    .admin-date-input input::-webkit-calendar-picker-indicator {
+      filter: invert(0.7);
+      cursor: pointer;
+    }
+    .admin-status-filters {
+      display: flex;
+      gap: var(--sp-1);
+      margin-bottom: var(--sp-3);
+      flex-wrap: wrap;
+    }
+    .admin-status-btn {
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(243,237,225,0.06);
+      color: var(--gris-300);
+      border: 1px solid rgba(243,237,225,0.08);
+      transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+    }
+    .admin-status-btn:hover {
+      background: rgba(198,255,61,0.08);
+      color: var(--lima-voltio);
+    }
+    .admin-status-btn--active {
+      background: rgba(198,255,61,0.12);
+      color: var(--lima-voltio);
+      border-color: rgba(198,255,61,0.3);
+    }
     @keyframes slideUp {
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
@@ -280,10 +343,11 @@
 
   var sbClient = null;
   var _searchTerm = '';
-  var _allPending = [];
-  var _allCompleted = [];
+  var _filterStatus = 'todos';
+  var _filterDateFrom = '';
+  var _filterDateTo = '';
+  var _allPayments = [];
   var _allActiveCount = 0;
-  var _allTotalCount = 0;
   var _allIngresosMes = 0;
 
   function getClient() {
@@ -402,15 +466,15 @@
       .gte('end_date', new Date().toISOString());
 
     // Calcular estadísticas
-    _allPending = (allPayments || []).filter(function (p) { return p.status === 'pending'; });
-    _allCompleted = (allPayments || []).filter(function (p) { return p.status === 'completed'; });
+    _allPayments = allPayments || [];
+    var pendingTotal = _allPayments.filter(function (p) { return p.status === 'pending'; });
+    var completedTotal = _allPayments.filter(function (p) { return p.status === 'completed'; });
     _allActiveCount = activeMemberships ? activeMemberships.length : 0;
-    _allTotalCount = allPayments ? allPayments.length : 0;
     _allIngresosMes = 0;
     var startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    _allCompleted.forEach(function (p) {
+    completedTotal.forEach(function (p) {
       var d = new Date(p.created_at);
       if (d >= startOfMonth) {
         _allIngresosMes += parseFloat(p.amount) || 0;
@@ -424,9 +488,10 @@
     var app = document.getElementById('app');
     if (!app) return;
 
-    // Aplicar filtro de búsqueda
-    var filteredPending = filterPayments(_allPending);
-    var filteredCompleted = filterPayments(_allCompleted);
+    // Aplicar filtros
+    var filtered = filterPayments(_allPayments);
+    var pendingData = filtered.filter(function (p) { return p.status === 'pending'; });
+    var completedData = filtered.filter(function (p) { return p.status === 'completed'; });
 
     app.innerHTML =
       '<section class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));">' +
@@ -440,7 +505,7 @@
           // Stats
           '<div class="admin-stats">' +
             '<div class="admin-stat-card admin-stat-card--warning">' +
-              '<div class="admin-stat-card__num">' + _allPending.length + '</div>' +
+              '<div class="admin-stat-card__num">' + _allPayments.filter(function(p){return p.status==='pending';}).length + '</div>' +
               '<div class="admin-stat-card__label">Pendientes</div>' +
             '</div>' +
             '<div class="admin-stat-card admin-stat-card--success">' +
@@ -452,37 +517,119 @@
               '<div class="admin-stat-card__label">Ingresos este mes</div>' +
             '</div>' +
             '<div class="admin-stat-card">' +
-              '<div class="admin-stat-card__num">' + _allTotalCount + '</div>' +
+              '<div class="admin-stat-card__num">' + _allPayments.length + '</div>' +
               '<div class="admin-stat-card__label">Total pagos</div>' +
             '</div>' +
           '</div>' +
 
-          // Buscador
-          '<div class="admin-search">' +
-            '<i class="ph ph-magnifying-glass"></i>' +
-            '<input type="text" id="adminSearchInput" placeholder="Buscar por nombre, email o plan..." value="' + _searchTerm + '" />' +
-            '<button class="admin-search-clear' + (_searchTerm ? ' visible' : '') + '" id="adminSearchClear">✕</button>' +
+          // Filtros
+          '<div class="admin-filters">' +
+            // Buscador
+            '<div class="admin-search" style="margin-bottom:0;flex:1;">' +
+              '<i class="ph ph-magnifying-glass"></i>' +
+              '<input type="text" id="adminSearchInput" placeholder="Buscar por nombre, email o plan..." value="' + _searchTerm + '" />' +
+              '<button class="admin-search-clear' + (_searchTerm ? ' visible' : '') + '" id="adminSearchClear">✕</button>' +
+            '</div>' +
+            // Filtro fecha desde
+            '<div class="admin-date-input">' +
+              '<i class="ph ph-calendar"></i>' +
+              '<input type="date" id="adminDateFrom" value="' + _filterDateFrom + '" title="Desde" />' +
+            '</div>' +
+            '<div class="admin-date-input">' +
+              '<i class="ph ph-calendar"></i>' +
+              '<input type="date" id="adminDateTo" value="' + _filterDateTo + '" title="Hasta" />' +
+            '</div>' +
           '</div>' +
 
-          // Pagos pendientes
-          renderPendingTable(filteredPending) +
+          // Filtro de estado
+          '<div class="admin-status-filters">' +
+            renderStatusBtn('todos', 'Todos') +
+            renderStatusBtn('pending', '⏳ Pendientes') +
+            renderStatusBtn('completed', '✓ Completados') +
+            renderStatusBtn('failed', '✗ Fallidos') +
+          '</div>' +
 
-          // Pagos completados
-          renderCompletedTable(filteredCompleted) +
+          // Pagos pendientes (si el filtro incluye pending o todos)
+          (_filterStatus === 'todos' || _filterStatus === 'pending' ? renderPendingTable(pendingData) : '') +
+
+          // Pagos completados (si el filtro incluye completed o todos)
+          (_filterStatus === 'todos' || _filterStatus === 'completed' ? renderCompletedTable(completedData) : '') +
+
+          // Fallidos (si el filtro es failed)
+          (_filterStatus === 'failed' ? renderFailedTable(filtered.filter(function(p){return p.status==='failed';})) : '') +
         '</div>' +
       '</section>';
   }
 
+  function renderStatusBtn(value, label) {
+    var active = _filterStatus === value ? ' admin-status-btn--active' : '';
+    return '<button class="admin-status-btn' + active + '" data-status="' + value + '">' + label + '</button>';
+  }
+
   function filterPayments(items) {
-    if (!_searchTerm) return items;
     var term = _searchTerm.toLowerCase();
     return items.filter(function (p) {
+      // Filtro por estado
+      if (_filterStatus !== 'todos' && p.status !== _filterStatus) return false;
+
+      // Filtro por fecha desde
+      if (_filterDateFrom) {
+        var d = new Date(p.created_at);
+        var from = new Date(_filterDateFrom);
+        from.setHours(0, 0, 0, 0);
+        if (d < from) return false;
+      }
+
+      // Filtro por fecha hasta
+      if (_filterDateTo) {
+        var d2 = new Date(p.created_at);
+        var to = new Date(_filterDateTo);
+        to.setHours(23, 59, 59, 999);
+        if (d2 > to) return false;
+      }
+
+      // Filtro por texto
+      if (!_searchTerm) return true;
       var profile = p.profiles || {};
       var name = (profile.full_name || '').toLowerCase();
       var email = (profile.email || '').toLowerCase();
       var plan = p.memberships ? (p.memberships.name || '').toLowerCase() : '';
       return name.indexOf(term) !== -1 || email.indexOf(term) !== -1 || plan.indexOf(term) !== -1;
     });
+  }
+
+  function renderFailedTable(failed) {
+    if (failed.length === 0) {
+      var msg = _searchTerm ? 'No hay pagos fallidos que coincidan con "' + _searchTerm + '".' : 'No hay pagos fallidos.';
+      return '<div class="admin-section-title"><i class="ph ph-x-circle"></i> Fallidos</div><div class="admin-empty"><p>' + msg + '</p></div>';
+    }
+    var rows = '';
+    for (var i = 0; i < failed.length; i++) {
+      var p = failed[i];
+      var profile = p.profiles || {};
+      var name = profile.full_name || '—';
+      var email = profile.email || '—';
+      var planName = p.memberships ? p.memberships.name : '—';
+      var date = new Date(p.created_at).toLocaleDateString('es-PE', { year: 'numeric', month: 'short', day: 'numeric' });
+      rows +=
+        '<tr>' +
+          '<td><div class="user-cell"><strong>' + name + '</strong><span>' + email + '</span></div></td>' +
+          '<td>' + planName + '</td>' +
+          '<td><strong>S/ ' + p.amount + '</strong></td>' +
+          '<td>' + date + '</td>' +
+          '<td><span style="color:var(--error);font-weight:700;">✗ Rechazado</span></td>' +
+        '</tr>';
+    }
+    return '' +
+      '<div class="admin-section-title"><i class="ph ph-x-circle"></i> Fallidos <span style="font-family:var(--font-body);font-size:0.8rem;color:var(--gris-500);">(' + failed.length + ')</span></div>' +
+      '<div class="perfil-card" style="padding:0;overflow:hidden;">' +
+        '<div class="admin-table-wrap">' +
+          '<table class="admin-table">' +
+            '<thead><tr><th>Usuario</th><th>Plan</th><th>Monto</th><th>Fecha</th><th>Estado</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>';
   }
 
   function renderPendingTable(pending) {
@@ -578,10 +725,18 @@
       '</div>';
   }
 
-  // ---------- Búsqueda en tiempo real ----------
+  // ---------- Filtros: búsqueda, fecha, estado ----------
   document.addEventListener('input', function (e) {
     if (e.target.id === 'adminSearchInput') {
       _searchTerm = e.target.value;
+      renderDashboard();
+    }
+    if (e.target.id === 'adminDateFrom') {
+      _filterDateFrom = e.target.value;
+      renderDashboard();
+    }
+    if (e.target.id === 'adminDateTo') {
+      _filterDateTo = e.target.value;
       renderDashboard();
     }
   });
@@ -592,6 +747,11 @@
       renderDashboard();
       var inp = document.getElementById('adminSearchInput');
       if (inp) inp.focus();
+    }
+    var statusBtn = e.target.closest('.admin-status-btn');
+    if (statusBtn) {
+      _filterStatus = statusBtn.getAttribute('data-status') || 'todos';
+      renderDashboard();
     }
   });
 
