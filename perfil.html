@@ -57,17 +57,17 @@
   </footer>
 
   <script type="module">
-    import { getSupabase, getSession, getUserProfile, onAuthStateChange } from './js/supabase.js';
+    import { getSupabase, getSession, getUserProfile } from './js/supabase.js';
     import { getActiveMembership, getMembershipPlans, getPaymentHistory, initUserMenu, logout, updateProfile } from './js/auth.js';
+    import { initPerfil } from './js/perfil.js';
 
-    // Inicializar navbar
+    // Año del footer
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    // Inicializar navbar y perfil
     initUserMenu();
-
-    // Importar y ejecutar perfil
-    import('./js/perfil.js').catch(err => {
-      console.error('Error loading perfil:', err);
-      document.getElementById('app').innerHTML = '<p class="lead" style="text-align:center;padding:4rem;color:var(--error);">Error al cargar el perfil. Recarga la página.</p>';
-    });
+    initPerfil();
   </script>
 </body>
 </html>

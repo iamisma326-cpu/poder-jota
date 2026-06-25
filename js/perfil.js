@@ -5,7 +5,7 @@
 import { getSupabase, getSession, getUserProfile } from './supabase.js';
 import { getActiveMembership, getMembershipPlans, getPaymentHistory, logout, updateProfile } from './auth.js';
 
-async function initPerfil() {
+export async function initPerfil() {
   const sb = getSupabase();
   if (!sb) {
     document.getElementById('app').innerHTML = '<p class="lead" style="text-align:center;padding:4rem;">Error al cargar Supabase. Verifica la conexión.</p>';
@@ -281,11 +281,8 @@ function setupTabs() {
   const tabs = document.querySelectorAll('.perfil-tab-btn');
   tabs.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Remover active de todos
       tabs.forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-
-      // Mostrar tab correspondiente
       const tabId = btn.getAttribute('data-tab');
       document.querySelectorAll('.perfil-tab-content').forEach(tc => tc.classList.remove('active'));
       document.getElementById(tabId)?.classList.add('active');
@@ -305,27 +302,11 @@ function setupAgeForm(userId) {
       return;
     }
     inputAge.style.borderColor = '';
-
     try {
       await updateProfile(userId, { age });
-      // Recargar para mostrar cambios
       window.location.reload();
     } catch (e) {
       alert('Error al guardar la edad. Intenta de nuevo.');
     }
   });
 }
-
-// ============================================================
-// Inicialización cuando el DOM esté listo
-// ============================================================
-(async function () {
-  // Asegurar que año del footer se muestre
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-  // Inicializar navbar
-  await initUserMenu();
-  // Inicializar perfil
-  await initPerfil();
-})();
