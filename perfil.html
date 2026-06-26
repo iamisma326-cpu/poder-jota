@@ -320,9 +320,70 @@
           var newPayment = payload.new;
           if (newPayment.status !== 'pending') return;
           playNotificationSound();
+
+          var profilePromise = sb
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', newPayment.user_id)
+            .single();
+
+          var planPromise = sb
+            .from('memberships')
+            .select('name')
+            .eq('id', newPayment.membership_id)
+            .single();
+
+          Promise.all([profilePromise, planPromise])
+            .then(function (results) {
+              var profile = results[0].data || {};
+              var plan = results[1].data || {};
+              var name = profile.full_name || profile.email || 'Usuario';
+              var planName = plan.name || 'Membresía';
+              showPaymentAlert(name, planName, newPayment);
+            })
+            .catch(function () {
+              showPaymentAlert('Usuario', 'Membresía', newPayment);
+            });
         }
       )
       .subscribe();
+  }
+
+  function showPaymentAlert(userName, planName, payment) {
+    var oldAlerts = document.querySelectorAll('.perfil-realtime-alert');
+    for (var i = 0; i < oldAlerts.length; i++) oldAlerts[i].remove();
+
+    var monto = payment.amount || '—';
+
+    var banner = document.createElement('div');
+    banner.className = 'perfil-realtime-alert';
+    banner.style.cssText = 'position:fixed;top:calc(var(--header-h) + var(--sp-2));right:var(--sp-3);max-width:420px;background:var(--gris-900);border:2px solid rgba(198,255,61,0.35);border-radius:var(--radius);padding:var(--sp-3);z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:slideInRight 0.35s cubic-bezier(0.22,0.61,0.36,1);';
+    banner.innerHTML =
+      '<div style="display:flex;align-items:center;gap:var(--sp-1);font-size:0.8rem;color:var(--lima-voltio);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-1);">' +
+        '<i class="ph ph-bell-ringing"></i> Nuevo pago recibido' +
+      '</div>' +
+      '<div style="color:var(--crema-andina);font-size:0.9rem;line-height:1.5;">' +
+        '<strong style="color:var(--lima-voltio);">' + userName + '</strong> acaba de pagar <strong style="color:var(--lima-voltio);">S/ ' + monto + '</strong> por ' + planName + '.' +
+      '</div>' +
+      '<div style="display:flex;gap:var(--sp-1);margin-top:var(--sp-2);">' +
+        '<button id="alertReload" style="padding:0.4rem 0.9rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:700;border:none;cursor:pointer;background:var(--lima-voltio);color:var(--negro);transition:opacity 0.15s;">🔄 Ir a Admin</button>' +
+        '<button id="alertDismiss" style="padding:0.4rem 0.9rem;border-radius:var(--radius-sm);font-size:0.78rem;font-weight:700;border:none;cursor:pointer;background:rgba(243,237,225,0.08);color:var(--gris-300);transition:opacity 0.15s;">✕ Ignorar</button>' +
+      '</div>';
+
+    document.body.appendChild(banner);
+
+    document.getElementById('alertReload').addEventListener('click', function () {
+      banner.remove();
+      window.location.href = 'admin.html';
+    });
+
+    document.getElementById('alertDismiss').addEventListener('click', function () {
+      banner.remove();
+    });
+
+    setTimeout(function () {
+      if (banner.parentNode) banner.remove();
+    }, 15000);
   }
 
   // ---------- Perfil Dashboard ----------

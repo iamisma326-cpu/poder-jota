@@ -38,6 +38,17 @@
 /* Slider de texto: capa base gestionada por JS */
 .text-slide { transition: none; }
 
+/* Notificación flotante: entrada desde la derecha */
+@keyframes slideInRight {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 /* Si el usuario no quiere motion, mostramos todo estático */
 @media (prefers-reduced-motion: reduce) {
   [data-reveal],
