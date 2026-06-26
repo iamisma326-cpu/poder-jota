@@ -11,6 +11,15 @@
   var SUPABASE_URL = 'https://cgqerygskfuctvfwgpxv.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_I8iqpE0e6IbDwyxVwpaQJA_odh4PT3g';
 
+  var ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
+
+  function isAdmin(email) {
+    if (!email) return false;
+    return ADMIN_EMAILS.some(function (adminEmail) {
+      return adminEmail.toLowerCase() === email.toLowerCase();
+    });
+  }
+
   var sbClient = null;
 
   function getClient() {
@@ -141,6 +150,7 @@
       '</div>' +
       '<a href="perfil.html" class="nav__dropdown-link"><i class="ph ph-user"></i> Mi Perfil</a>' +
       '<a href="perfil.html#membresia" class="nav__dropdown-link"><i class="ph ph-crown"></i> Mi Membresía</a>' +
+      (isAdmin(user.email) ? '<a href="admin.html" class="nav__dropdown-link"><i class="ph ph-shield-check"></i> Admin Panel</a>' : '') +
       '<button class="nav__dropdown-link nav__dropdown-link--logout" id="btnLogoutNav"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>';
 
     userMenu.appendChild(userBtn);
@@ -223,6 +233,7 @@
                   '</button>' +
                   '<button class="perfil-tab-btn" data-tab="planes-tab"><i class="ph ph-shopping-bag-open"></i> Comprar Membresía</button>' +
                   '<button class="perfil-tab-btn" data-tab="historial-tab"><i class="ph ph-clock"></i> Historial</button>' +
+                  (isAdmin(email) ? '<button class="perfil-tab-btn" id="btnGoAdmin" style="border-color:rgba(198,255,61,0.15);"><i class="ph ph-shield-check" style="color:var(--lima-voltio);"></i> <span style="color:var(--lima-voltio);">Admin Panel</span></button>' : '') +
                   '<button class="perfil-tab-btn perfil-tab-btn--logout" id="btnLogoutPerfil"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>' +
                 '</div>' +
               '</div>' +
@@ -242,6 +253,14 @@
       await logout();
       window.location.href = 'index.html';
     });
+
+    // Boton "Admin Panel" en sidebar (navega a admin.html)
+    var btnGoAdmin = document.getElementById('btnGoAdmin');
+    if (btnGoAdmin) {
+      btnGoAdmin.addEventListener('click', function () {
+        window.location.href = 'admin.html';
+      });
+    }
   }
 
   function tabPerfil(displayName, email, age) {
