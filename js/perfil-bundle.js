@@ -192,16 +192,26 @@
     var profile = await getUserProfile(user.id);
 
     var activeMembership, plans, payments;
+    var _pendingAdminCount = 0;
     try { activeMembership = await getActiveMembership(user.id); } catch (e) {}
     try { plans = await getMembershipPlans(); } catch (e) {}
     try { payments = await getPaymentHistory(user.id); } catch (e) {}
 
-    renderPerfil(user, profile, activeMembership, plans || [], payments || []);
+    // Contar todos los pagos pendientes (solo admins)
+    if (isAdmin(user.email)) {
+      try {
+        var { count } = await sb.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'pending');
+        _pendingAdminCount = count || 0;
+      } catch (e) {}
+    }
+
+    renderPerfil(user, profile, activeMembership, plans || [], payments || [], _pendingAdminCount);
     setupTabs();
     setupAgeForm(user.id);
   }
 
-  function renderPerfil(user, profile, activeMembership, plans, payments) {
+  function renderPerfil(user, profile, activeMembership, plans, payments, _pendingAdminCount) {
+    _pendingAdminCount = _pendingAdminCount || 0;
     var displayName = (user.user_metadata && user.user_metadata.full_name) || (profile && profile.full_name) || user.email.split('@')[0] || 'Usuario';
     var avatarUrl = user.user_metadata && user.user_metadata.avatar_url;
     var initial = displayName.charAt(0).toUpperCase();
@@ -233,7 +243,7 @@
                   '</button>' +
                   '<button class="perfil-tab-btn" data-tab="planes-tab"><i class="ph ph-shopping-bag-open"></i> Comprar Membresía</button>' +
                   '<button class="perfil-tab-btn" data-tab="historial-tab"><i class="ph ph-clock"></i> Historial</button>' +
-                  (isAdmin(email) ? '<button class="perfil-tab-btn" id="btnGoAdmin" style="border-color:rgba(198,255,61,0.15);"><i class="ph ph-shield-check" style="color:var(--lima-voltio);"></i> <span style="color:var(--lima-voltio);">Admin Panel</span></button>' : '') +
+                  (isAdmin(email) ? '<button class="perfil-tab-btn" id="btnGoAdmin" style="border-color:rgba(198,255,61,0.15);"><i class="ph ph-shield-check" style="color:var(--lima-voltio);"></i> <span style="color:var(--lima-voltio);">Admin Panel</span>' + (_pendingAdminCount > 0 ? ' <span class="perfil-badge" style="background:rgba(249,168,37,0.15);color:var(--warning);font-size:0.7rem;">' + _pendingAdminCount + '</span>' : '') + '</button>' : '') +
                   '<button class="perfil-tab-btn perfil-tab-btn--logout" id="btnLogoutPerfil"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>' +
                 '</div>' +
               '</div>' +
