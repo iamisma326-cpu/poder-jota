@@ -315,6 +315,7 @@
                   '</button>' +
                   '<button class="perfil-tab-btn" data-tab="planes-tab"><i class="ph ph-shopping-bag-open"></i> Comprar Membresía</button>' +
                   '<button class="perfil-tab-btn" data-tab="historial-tab"><i class="ph ph-clock"></i> Historial</button>' +
+                  (isAdmin(email) ? '<button class="perfil-tab-btn" id="btnGoAdmin" style="border-color:rgba(198,255,61,0.15);"><i class="ph ph-shield-check" style="color:var(--lima-voltio);"></i> <span style="color:var(--lima-voltio);">Admin Panel</span></button>' : '') +
                   '<button class="perfil-tab-btn perfil-tab-btn--logout" id="btnLogoutPerfil"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>' +
                 '</div>' +
               '</div>' +
@@ -341,6 +342,14 @@
       btnGoPlanes.addEventListener('click', function () {
         var planesBtn = document.querySelector('[data-tab="planes-tab"]');
         if (planesBtn) planesBtn.click();
+      });
+    }
+
+    // Boton "Admin Panel" en sidebar (navega a admin.html)
+    var btnGoAdmin = document.getElementById('btnGoAdmin');
+    if (btnGoAdmin) {
+      btnGoAdmin.addEventListener('click', function () {
+        window.location.href = 'admin.html';
       });
     }
   }
