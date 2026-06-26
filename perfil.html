@@ -70,6 +70,15 @@
   var SUPABASE_URL = 'https://cgqerygskfuctvfwgpxv.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_I8iqpE0e6IbDwyxVwpaQJA_odh4PT3g';
 
+  var ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
+
+  function isAdmin(email) {
+    if (!email) return false;
+    return ADMIN_EMAILS.some(function (adminEmail) {
+      return adminEmail.toLowerCase() === email.toLowerCase();
+    });
+  }
+
   var sbClient = null;
 
   function getClient() {
@@ -214,6 +223,7 @@
       '</div>' +
       '<a href="perfil.html" class="nav__dropdown-link"><i class="ph ph-user"></i> Mi Perfil</a>' +
       '<a href="perfil.html#membresia" class="nav__dropdown-link"><i class="ph ph-crown"></i> Mi Membresía</a>' +
+      (isAdmin(user.email) ? '<a href="admin.html" class="nav__dropdown-link"><i class="ph ph-shield-check"></i> Admin Panel</a>' : '') +
       '<button class="nav__dropdown-link nav__dropdown-link--logout" id="btnLogoutNav"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>';
 
     userMenu.appendChild(userBtn);

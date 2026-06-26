@@ -131,6 +131,18 @@ export async function getPaymentHistory(userId) {
 }
 
 /**
+ * Verifica si un email pertenece a un administrador
+ */
+const ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
+
+export function isAdmin(email) {
+  if (!email) return false;
+  return ADMIN_EMAILS.some(function (adminEmail) {
+    return adminEmail.toLowerCase() === email.toLowerCase();
+  });
+}
+
+/**
  * Inicializa el menú de usuario en la navbar
  * Se llama desde todas las páginas
  */
@@ -191,6 +203,9 @@ export async function initUserMenu() {
     <a href="perfil.html#membresia" class="nav__dropdown-link">
       <i class="ph ph-crown"></i> Mi Membresía
     </a>
+    ${isAdmin(session.user.email) ? `<a href="admin.html" class="nav__dropdown-link">
+      <i class="ph ph-shield-check"></i> Admin Panel
+    </a>` : ''}
     <button class="nav__dropdown-link nav__dropdown-link--logout" id="btnLogoutNav">
       <i class="ph ph-sign-out"></i> Cerrar Sesión
     </button>

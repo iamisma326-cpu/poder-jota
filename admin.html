@@ -631,7 +631,9 @@
         return;
       }
 
-      if (!ADMIN_EMAILS.includes(session.user.email)) {
+      var userEmail = (session.user.email || '').toLowerCase();
+      var isAllowed = ADMIN_EMAILS.some(function (e) { return e.toLowerCase() === userEmail; });
+      if (!isAllowed) {
         document.getElementById('app').innerHTML =
           '<section class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));">' +
             '<div class="container">' +
@@ -684,7 +686,11 @@
 
     if (payError) {
       console.error('Error fetching payments:', payError);
-      document.getElementById('app').innerHTML = '<p class="lead" style="text-align:center;padding:4rem;color:var(--error);">Error al cargar los pagos.</p>';
+      var errMsg = 'Error al cargar los pagos.';
+      if (payError.code === 'PGRST301' || String(payError.message || '').indexOf('policy') !== -1) {
+        errMsg += '<br/><br/>Posiblemente falta ejecutar las políticas de administrador en Supabase. Ve a <strong>SQL Editor</strong> y ejecuta el script <code>supabase/migrations/002_admin_policies.sql</code>.';
+      }
+      document.getElementById('app').innerHTML = '<div class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));"><div class="container"><div class="admin-deny"><i class="ph ph-warning-circle"></i><h2>Error de permisos</h2><p class="lead" style="margin-top:var(--sp-1);color:var(--error);">' + errMsg + '</p></div></div></div>';
       return;
     }
 
