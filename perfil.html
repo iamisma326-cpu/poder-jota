@@ -205,6 +205,16 @@
     var displayName = (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0] || 'Usuario';
     var initial = displayName.charAt(0).toUpperCase();
 
+    // Contar pagos pendientes (solo admins)
+    var pendingCount = 0;
+    if (isAdmin(user.email)) {
+      try {
+        var sb = getClient();
+        var { count } = await sb.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'pending');
+        pendingCount = count || 0;
+      } catch (e) {}
+    }
+
     var userMenu = document.createElement('div');
     userMenu.className = 'nav__user-menu nav__user-btn';
     var userBtn = document.createElement('button');
@@ -214,6 +224,9 @@
       ? '<img src="' + avatarUrl + '" alt="" width="32" height="32" class="nav__user-avatar" />'
       : '<span class="nav__user-initial">' + initial + '</span>';
 
+    var adminBadge = pendingCount > 0
+      ? '<span style="background:rgba(249,168,37,0.15);color:var(--warning);font-size:0.7rem;padding:0.1rem 0.45rem;border-radius:999px;margin-left:0.4rem;font-weight:700;">' + pendingCount + '</span>'
+      : '';
     var dropdown = document.createElement('div');
     dropdown.className = 'nav__user-dropdown';
     dropdown.innerHTML =
@@ -223,7 +236,7 @@
       '</div>' +
       '<a href="perfil.html" class="nav__dropdown-link"><i class="ph ph-user"></i> Mi Perfil</a>' +
       '<a href="perfil.html#membresia" class="nav__dropdown-link"><i class="ph ph-crown"></i> Mi Membresía</a>' +
-      (isAdmin(user.email) ? '<a href="admin.html" class="nav__dropdown-link"><i class="ph ph-shield-check"></i> Admin Panel</a>' : '') +
+      (isAdmin(user.email) ? '<a href="admin.html" class="nav__dropdown-link"><i class="ph ph-shield-check"></i> Admin Panel' + adminBadge + '</a>' : '') +
       '<button class="nav__dropdown-link nav__dropdown-link--logout" id="btnLogoutNav"><i class="ph ph-sign-out"></i> Cerrar Sesión</button>';
 
     userMenu.appendChild(userBtn);

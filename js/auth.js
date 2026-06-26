@@ -177,6 +177,16 @@ export async function initUserMenu() {
   const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario';
   const initial = displayName.charAt(0).toUpperCase();
 
+  // Contar pagos pendientes (solo admins)
+  let pendingCount = 0;
+  if (isAdmin(user.email)) {
+    try {
+      const sb = getSupabase();
+      const { count } = await sb.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'pending');
+      pendingCount = count || 0;
+    } catch (e) {}
+  }
+
   // Contenedor del menú de usuario
   const userMenu = document.createElement('div');
   userMenu.className = 'nav__user-menu';
@@ -192,6 +202,9 @@ export async function initUserMenu() {
   // Dropdown
   const dropdown = document.createElement('div');
   dropdown.className = 'nav__user-dropdown';
+  const adminBadge = pendingCount > 0
+    ? `<span style="background:rgba(249,168,37,0.15);color:var(--warning);font-size:0.7rem;padding:0.1rem 0.45rem;border-radius:999px;margin-left:0.4rem;font-weight:700;">${pendingCount}</span>`
+    : '';
   dropdown.innerHTML = `
     <div class="nav__user-info">
       <span class="nav__user-name">${displayName}</span>
@@ -204,7 +217,7 @@ export async function initUserMenu() {
       <i class="ph ph-crown"></i> Mi Membresía
     </a>
     ${isAdmin(session.user.email) ? `<a href="admin.html" class="nav__dropdown-link">
-      <i class="ph ph-shield-check"></i> Admin Panel
+      <i class="ph ph-shield-check"></i> Admin Panel${adminBadge}
     </a>` : ''}
     <button class="nav__dropdown-link nav__dropdown-link--logout" id="btnLogoutNav">
       <i class="ph ph-sign-out"></i> Cerrar Sesión
