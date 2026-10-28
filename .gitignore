@@ -24,6 +24,8 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+.env*
+!.env.example
 
 # Logs
 *.log
@@ -35,3 +37,7 @@ pl/
 # Misc
 nul
 package-json
+.vercel
+.neon/
+.playwright-cli/
+.neon

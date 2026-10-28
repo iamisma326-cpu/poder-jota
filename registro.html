@@ -14,7 +14,6 @@
   <!-- Phosphor Icons -->
   <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
   <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="auth-body">
 
@@ -110,8 +109,8 @@
   </main>
 
   <script type="module">
-    import { getSupabase, getSession } from './js/supabase.js';
-    import { registerWithEmail, loginWithGoogle, initUserMenu } from './js/auth.js';
+    import { getNeon, getSession } from './js/neon.js';
+    import { registerWithEmail, initUserMenu } from './js/auth.js';
 
     // Redirigir si ya hay sesión
     (async () => {
@@ -175,7 +174,7 @@
         errorEl.style.background = 'rgba(46,125,50,0.15)';
         errorEl.style.color = 'var(--success)';
         errorEl.style.borderColor = 'rgba(46,125,50,0.3)';
-        errorEl.textContent = '✓ Cuenta creada. Revisa tu correo para confirmar el registro.';
+        errorEl.textContent = '✓ Cuenta creada. Ya puedes iniciar sesión.';
         btn.disabled = true;
         btn.textContent = '✓ Cuenta creada';
       } catch (err) {
@@ -189,16 +188,23 @@
       }
     });
 
-    // Registro con Google
-    document.getElementById('btnGoogleRegister').addEventListener('click', async () => {
-      try {
-        await loginWithGoogle();
-      } catch (err) {
+    // Registro con Google (desactivado: proveedor sin configurar en Neon Auth)
+    const googleBtn = document.getElementById('btnGoogleRegister');
+    if (googleBtn) {
+      googleBtn.disabled = true;
+      googleBtn.setAttribute('aria-disabled', 'true');
+      googleBtn.style.opacity = '0.55';
+      googleBtn.style.cursor = 'not-allowed';
+      googleBtn.title = 'El acceso con Google todavía no está disponible';
+
+      googleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         const errorEl = document.getElementById('registerError');
         errorEl.style.display = 'block';
-        errorEl.textContent = 'Error al conectar con Google. Intenta de nuevo.';
-      }
-    });
+        errorEl.textContent =
+          'El acceso con Google todavía no está disponible. Regístrate con tu correo.';
+      });
+    }
 
     // Inicializar navbar
     initUserMenu();

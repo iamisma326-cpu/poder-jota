@@ -14,7 +14,6 @@
   <!-- Phosphor Icons -->
   <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
   <!-- Supabase JS (global) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- SheetJS for XLSX export -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <style>
@@ -559,12 +558,17 @@
     </div>
   </footer>
 
-  <script>
+  <script type="module">
+// ============================================================
+// PODER JOTA — Panel de administración
+// Auth: Neon Auth · Datos: Neon Data API (ver js/neon.js)
+// ============================================================
+
+import { getNeon } from './js/neon.js';
+
 (function () {
   'use strict';
 
-  var SUPABASE_URL = 'https://cgqerygskfuctvfwgpxv.supabase.co';
-  var SUPABASE_ANON_KEY = 'sb_publishable_I8iqpE0e6IbDwyxVwpaQJA_odh4PT3g';
   var ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
 
   var sbClient = null;
@@ -581,16 +585,7 @@
   var _totalUsers = 0;
 
   function getClient() {
-    if (sbClient) return sbClient;
-    if (typeof supabase !== 'undefined') {
-      sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-          autoRefreshToken: true,
-          persistSession: true,
-          detectSessionInUrl: true,
-        },
-      });
-    }
+    if (!sbClient) sbClient = getNeon();
     return sbClient;
   }
 
@@ -672,7 +667,7 @@
       console.error('Error fetching payments:', payError);
       var errMsg = 'Error al cargar los pagos.';
       if (payError.code === 'PGRST301' || String(payError.message || '').indexOf('policy') !== -1) {
-        errMsg += '<br/><br/>Posiblemente falta ejecutar las políticas de administrador en Supabase. Ve a <strong>SQL Editor</strong> y ejecuta el script <code>supabase/migrations/002_admin_policies.sql</code>.';
+        errMsg += '<br/><br/>Revisa que tu perfil tenga <code>is_admin = true</code> en la tabla <code>profiles</code> de Neon. Las políticas RLS están en <code>db/migrations/001_init.sql</code>.';
       }
       document.getElementById('app').innerHTML = '<div class="section" style="padding-top: calc(var(--header-h) + var(--sp-5));"><div class="container"><div class="admin-deny"><i class="ph ph-warning-circle"></i><h2>Error de permisos</h2><p class="lead" style="margin-top:var(--sp-1);color:var(--error);">' + errMsg + '</p></div></div></div>';
       return;

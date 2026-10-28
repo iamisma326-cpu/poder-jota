@@ -14,7 +14,6 @@
   <!-- Phosphor Icons -->
   <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
   <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="auth-body">
 
@@ -91,7 +90,7 @@
   </main>
 
   <script type="module">
-    import { getSupabase, getSession } from './js/supabase.js';
+    import { getNeon, getSession } from './js/neon.js';
     import { loginWithEmail, loginWithGoogle, initUserMenu } from './js/auth.js';
 
     // Redirigir si ya hay sesión
@@ -130,17 +129,23 @@
       }
     });
 
-    // Login con Google
-    document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
-      try {
-        await loginWithGoogle();
-        // redirige automáticamente
-      } catch (err) {
+    // Login con Google (desactivado: proveedor sin configurar en Neon Auth)
+    const googleBtn = document.getElementById('btnGoogleLogin');
+    if (googleBtn) {
+      googleBtn.disabled = true;
+      googleBtn.setAttribute('aria-disabled', 'true');
+      googleBtn.style.opacity = '0.55';
+      googleBtn.style.cursor = 'not-allowed';
+      googleBtn.title = 'El acceso con Google todavía no está disponible';
+
+      googleBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
         const errorEl = document.getElementById('loginError');
         errorEl.style.display = 'block';
-        errorEl.textContent = 'Error al conectar con Google. Intenta de nuevo.';
-      }
-    });
+        errorEl.textContent =
+          'El acceso con Google todavía no está disponible. Usa tu correo y contraseña.';
+      });
+    }
 
     // Inicializar navbar
     initUserMenu();

@@ -1,71 +1,98 @@
 // ============================================================
-// PODER JOTA — Lógica de autenticación
+// PODER JOTA — Lógica de autenticación (Neon Auth)
 // ============================================================
 // Esta lógica se usa en: login.html, registro.html, perfil.html
 // y en la navbar de todas las páginas.
 // ============================================================
 
-import { getSupabase, getSession } from './supabase.js';
+import { getNeon, getSession } from './neon.js';
 
 /**
  * Inicia sesión con email y contraseña
  */
 export async function loginWithEmail(email, password) {
-  const sb = getSupabase();
-  const { data, error } = await sb.auth.signInWithPassword({
+  const neon = getNeon();
+  const { data, error } = await neon.auth.signInWithPassword({
     email,
     password,
   });
   if (error) throw error;
+  if (data?.user) await ensureProfile(data.user);
   return data;
 }
 
 /**
- * Registra un nuevo usuario con email y contraseña
+ * Registra un nuevo usuario con email y contraseña.
+ * Neon Auth guarda la identidad; el perfil vive en public.profiles.
  */
 export async function registerWithEmail(email, password, fullName, age) {
-  const sb = getSupabase();
-  const { data, error } = await sb.auth.signUp({
+  const neon = getNeon();
+  const { data, error } = await neon.auth.signUp({
     email,
     password,
-    options: {
-      data: {
-        full_name: fullName,
-        age: age ? parseInt(age) : null,
-      },
-    },
+    name: fullName || undefined,
   });
+  if (error) throw error;
+
+  if (data?.user) {
+    // El nombre visible vive en public.profiles (Neon Auth no lo guarda
+    // al registrarse a través del adaptador compatible con Supabase).
+    await ensureProfile(data.user, {
+      fullName,
+      age: age ? parseInt(age, 10) : null,
+    });
+  }
+  return data;
+}
+
+/**
+ * Crea el perfil si aún no existe (no hay trigger en Neon Auth).
+ */
+export async function ensureProfile(user, extra = {}) {
+  const neon = getNeon();
+  if (!neon || !user?.id) return null;
+
+  const existing = await neon
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (existing.error) throw existing.error;
+  if (existing.data) return existing.data;
+
+  const { data, error } = await neon
+    .from('profiles')
+    .upsert({
+      id: user.id,
+      email: user.email,
+      full_name: extra.fullName || user.user_metadata?.displayName || null,
+      age: extra.age ?? null,
+      avatar_url: user.user_metadata?.profileImageUrl || null,
+    })
+    .select()
+    .maybeSingle();
+
   if (error) throw error;
   return data;
 }
 
 /**
- * Inicia sesión con Google OAuth
+ * Inicia sesión con Google OAuth.
+ * Desactivado: el proveedor aún no está configurado en Neon Auth.
  */
 export async function loginWithGoogle() {
-  const sb = getSupabase();
-  // Detectar si estamos en dev (localhost) o producción
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const redirectTo = isLocal
-    ? window.location.origin + '/perfil.html'
-    : 'https://poder-jota.vercel.app/perfil.html';
-
-  const { data, error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo,
-    },
-  });
-  if (error) throw error;
-  return data;
+  throw new Error(
+    'El acceso con Google todavía no está disponible. Usa tu correo y contraseña.'
+  );
 }
 
 /**
  * Cierra la sesión del usuario
  */
 export async function logout() {
-  const sb = getSupabase();
-  const { error } = await sb.auth.signOut();
+  const neon = getNeon();
+  const { error } = await neon.auth.signOut();
   if (error) throw error;
 }
 
@@ -73,10 +100,10 @@ export async function logout() {
  * Actualiza el perfil del usuario (edad, nombre)
  */
 export async function updateProfile(userId, updates) {
-  const sb = getSupabase();
-  const { data, error } = await sb
+  const neon = getNeon();
+  const { data, error } = await neon
     .from('profiles')
-    .update(updates)
+    .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', userId)
     .select()
     .single();
@@ -88,8 +115,8 @@ export async function updateProfile(userId, updates) {
  * Obtiene la membresía activa del usuario
  */
 export async function getActiveMembership(userId) {
-  const sb = getSupabase();
-  const { data, error } = await sb
+  const neon = getNeon();
+  const { data, error } = await neon
     .from('user_memberships')
     .select('*, memberships(*)')
     .eq('user_id', userId)
@@ -106,8 +133,8 @@ export async function getActiveMembership(userId) {
  * Obtiene todos los planes de membresía disponibles
  */
 export async function getMembershipPlans() {
-  const sb = getSupabase();
-  const { data, error } = await sb
+  const neon = getNeon();
+  const { data, error } = await neon
     .from('memberships')
     .select('*')
     .eq('active', true)
@@ -120,8 +147,8 @@ export async function getMembershipPlans() {
  * Obtiene el historial de pagos del usuario
  */
 export async function getPaymentHistory(userId) {
-  const sb = getSupabase();
-  const { data, error } = await sb
+  const neon = getNeon();
+  const { data, error } = await neon
     .from('payments')
     .select('*, memberships(name)')
     .eq('user_id', userId)
@@ -131,7 +158,9 @@ export async function getPaymentHistory(userId) {
 }
 
 /**
- * Verifica si un email pertenece a un administrador
+ * Verifica si un email pertenece a un administrador.
+ * Debe coincidir con los emails marcados con is_admin en la tabla profiles,
+ * que es lo que aplica la RLS en Postgres.
  */
 const ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
 
@@ -173,16 +202,20 @@ export async function initUserMenu() {
 
   // Hay sesión: mostrar avatar con menú desplegable
   const user = session.user;
-  const avatarUrl = user.user_metadata?.avatar_url;
-  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario';
+  const avatarUrl = user.user_metadata?.profileImageUrl || user.user_metadata?.avatar_url;
+  const displayName =
+    user.user_metadata?.displayName ||
+    user.user_metadata?.full_name ||
+    user.email?.split('@')[0] ||
+    'Usuario';
   const initial = displayName.charAt(0).toUpperCase();
 
   // Contar pagos pendientes (solo admins)
   let pendingCount = 0;
   if (isAdmin(user.email)) {
     try {
-      const sb = getSupabase();
-      const { count } = await sb.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'pending');
+      const neon = getNeon();
+      const { count } = await neon.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'pending');
       pendingCount = count || 0;
     } catch (e) {}
   }

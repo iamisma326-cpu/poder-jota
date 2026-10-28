@@ -14,7 +14,6 @@
   <!-- Phosphor Icons -->
   <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
   <!-- Supabase JS (global) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -56,19 +55,17 @@
     </div>
   </footer>
 
-  <!-- Script inline: todo auto-contenido, no depende de archivos externos -->
-  <script>
+  <!-- Script del perfil: usa el cliente de Neon (js/neon.js) -->
+  <script type="module">
 // ============================================================
-// PODER JOTA — Perfil Bundle (inlineado, sin dependencias externas)
-// La variable global `supabase` viene del CDN cargado en el head
+// PODER JOTA — Perfil
+// Auth: Neon Auth · Datos: Neon Data API (ver js/neon.js)
 // ============================================================
+
+import { getNeon } from './js/neon.js';
 
 (function () {
   'use strict';
-
-  // ---------- Configuración ----------
-  var SUPABASE_URL = 'https://cgqerygskfuctvfwgpxv.supabase.co';
-  var SUPABASE_ANON_KEY = 'sb_publishable_I8iqpE0e6IbDwyxVwpaQJA_odh4PT3g';
 
   var ADMIN_EMAILS = ['iamisma326@gmail.com', 'diego.alegres@istpargentina.edu.pe'];
 
@@ -82,16 +79,7 @@
   var sbClient = null;
 
   function getClient() {
-    if (sbClient) return sbClient;
-    if (typeof supabase !== 'undefined') {
-      sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-          autoRefreshToken: true,
-          persistSession: true,
-          detectSessionInUrl: true,
-        },
-      });
-    }
+    if (!sbClient) sbClient = getNeon();
     return sbClient;
   }
 
