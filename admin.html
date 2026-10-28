@@ -1088,6 +1088,10 @@ import { getNeon } from './js/neon.js';
     var sb = getClient();
     if (!sb) return;
 
+    // El cliente de Neon no incluye Supabase Realtime: sin este guard,
+    // sb.channel() lanzaba un TypeError y el panel entero no cargaba.
+    if (typeof sb.channel !== 'function') return;
+
     // Limpiar canal anterior (evita duplicados al recargar dashboard)
     if (_realtimeChannel) {
       sb.removeChannel(_realtimeChannel);

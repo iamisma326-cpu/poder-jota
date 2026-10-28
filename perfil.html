@@ -295,6 +295,11 @@ import { getNeon } from './js/neon.js';
     var sb = getClient();
     if (!sb) return;
 
+    // El cliente de Neon no incluye Supabase Realtime: sin este guard,
+    // sb.channel() lanzaba un TypeError y rompía toda la carga del perfil
+    // (solo a los admins, que son los únicos que llegan a esta línea).
+    if (typeof sb.channel !== 'function') return;
+
     if (_realtimeChannel) {
       sb.removeChannel(_realtimeChannel);
     }
