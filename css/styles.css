@@ -1823,8 +1823,27 @@ details.card[open] summary::before {
 
 .auth-form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-2);
+}
+.auth-card .field,
+.auth-form-row > .field {
+  min-width: 0;
+}
+.auth-card .field input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+}
+.auth-card .field__error {
+  overflow-wrap: anywhere;
+}
+.auth-card p,
+.auth-card label,
+.auth-card a {
+  overflow-wrap: anywhere;
 }
 
 .auth-submit {
