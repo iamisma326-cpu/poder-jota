@@ -62,6 +62,7 @@
 // ============================================================
 
 import { getNeon } from './js/neon.js';
+import { startPaymentNotifications } from './js/realtime.js';
 
 (function () {
   'use strict';
@@ -289,56 +290,54 @@ import { getNeon } from './js/neon.js';
   }
 
   // ---------- Realtime: notificaciones en vivo (solo admins) ----------
-  var _realtimeChannel = null;
+  var _stopRealtime = null;
 
-  function setupRealtimeNotif() {
+  async function setupRealtimeNotif() {
     var sb = getClient();
     if (!sb) return;
 
-    // El cliente de Neon no incluye Supabase Realtime: sin este guard,
-    // sb.channel() lanzaba un TypeError y rompía toda la carga del perfil
-    // (solo a los admins, que son los únicos que llegan a esta línea).
-    if (typeof sb.channel !== 'function') return;
-
-    if (_realtimeChannel) {
-      sb.removeChannel(_realtimeChannel);
+    if (_stopRealtime) {
+      _stopRealtime();
+      _stopRealtime = null;
     }
 
-    _realtimeChannel = sb
-      .channel('perfil-payments')
-      .on('postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'payments' },
-        function (payload) {
-          var newPayment = payload.new;
-          if (newPayment.status !== 'pending') return;
-          playNotificationSound();
+    _stopRealtime = await startPaymentNotifications({
+      onNewPayment: function (newPayment) {
+        playNotificationSound();
 
-          var profilePromise = sb
-            .from('profiles')
-            .select('full_name, email')
-            .eq('id', newPayment.user_id)
-            .single();
+        var profilePromise = sb
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', newPayment.user_id)
+          .single();
 
-          var planPromise = sb
-            .from('memberships')
-            .select('name')
-            .eq('id', newPayment.membership_id)
-            .single();
+        var planPromise = sb
+          .from('memberships')
+          .select('name')
+          .eq('id', newPayment.membership_id)
+          .single();
 
-          Promise.all([profilePromise, planPromise])
-            .then(function (results) {
-              var profile = results[0].data || {};
-              var plan = results[1].data || {};
-              var name = profile.full_name || profile.email || 'Usuario';
-              var planName = plan.name || 'Membresía';
-              showPaymentAlert(name, planName, newPayment);
-            })
-            .catch(function () {
-              showPaymentAlert('Usuario', 'Membresía', newPayment);
-            });
+        Promise.all([profilePromise, planPromise])
+          .then(function (results) {
+            var profile = results[0].data || {};
+            var plan = results[1].data || {};
+            var name = profile.full_name || profile.email || 'Usuario';
+            var planName = plan.name || 'Membresía';
+            showPaymentAlert(name, planName, newPayment);
+          })
+          .catch(function () {
+            showPaymentAlert('Usuario', 'Membresía', newPayment);
+          });
+      },
+      onStatus: function (snapshot) {
+        if (snapshot.status === 'error') {
+          console.warn('Realtime de pagos detenido:', snapshot.error?.message || 'error desconocido');
         }
-      )
-      .subscribe();
+      },
+      onError: function (error) {
+        console.warn('No se pudo iniciar Realtime de pagos:', error.message);
+      }
+    });
   }
 
   function showPaymentAlert(userName, planName, payment) {

@@ -14,10 +14,27 @@ export default defineConfig({
   },
   functions: {
     hello: { name: "Hello World", source: "./hello.ts" },
+    // Sella la consulta de pagos en vivo (Neon Realtime).
+    // El secreto se resuelve al hacer `neon deploy --env .env.local`.
+    seal: {
+      name: "Sellar consulta de pagos",
+      source: "./seal.ts",
+      env: { NEON_REALTIME_SECRET: process.env.NEON_REALTIME_SECRET! },
+    },
   },
   buckets: {
     // "private" is the default; use "public_read" for anonymous reads
     assets: { access: "private" },
+  },
+  // Live SQL queries (notificaciones de pagos en vivo)
+  preview: {
+    realtime: {
+      allowedOrigins: [
+        "https://poder-jota.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:4173",
+      ],
+    },
   },
   // Branch policy: per-branch tuning
   branch: (branch) => {
