@@ -112,6 +112,37 @@ export async function updateProfile(userId, updates) {
 }
 
 /**
+ * Guarda el teléfono de contacto y la preferencia de promociones.
+ * El teléfono se normaliza (sin espacios ni guiones) y debe ser un
+ * celular peruano de 9 dígitos que empiece en 9; si no, lanza error.
+ */
+export async function updatePhone(userId, phone, promoOptIn) {
+  const normalized = (phone || '').replace(/[\s-]/g, '');
+  if (normalized && !/^9\d{8}$/.test(normalized)) {
+    throw new Error('El celular debe tener 9 dígitos y empezar en 9.');
+  }
+  return updateProfile(userId, {
+    phone: normalized || null,
+    promo_opt_in: normalized ? !!promoOptIn : false,
+  });
+}
+
+/**
+ * Cambia la contraseña del usuario con sesión iniciada.
+ * Neon Auth exige la contraseña actual para verificar.
+ * (El adaptador de Supabase no expone changePassword; se usa el cliente
+ * de Better Auth que tiene debajo.)
+ */
+export async function changePassword(currentPassword, newPassword) {
+  const neon = getNeon();
+  const { error } = await neon.auth
+    .getBetterAuthInstance()
+    .changePassword({ currentPassword, newPassword });
+  if (error) throw new Error(error.message || 'No se pudo cambiar la contraseña.');
+  return true;
+}
+
+/**
  * Obtiene la membresía activa del usuario
  */
 export async function getActiveMembership(userId) {

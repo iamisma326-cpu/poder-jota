@@ -63,6 +63,7 @@
 
 import { getNeon } from './js/neon.js';
 import { startPaymentNotifications } from './js/realtime.js';
+import { updatePhone, changePassword } from './js/auth.js';
 
 (function () {
   'use strict';
@@ -413,6 +414,7 @@ import { startPaymentNotifications } from './js/realtime.js';
     setupPaymentButtons();
     setupTabs();
     setupAgeForm(user.id);
+    setupAccountForms(user.id);
   }
 
   function renderPerfil(user, profile, activeMembership, plans, payments, pendingPayments, _pendingAdminCount) {
@@ -462,7 +464,7 @@ import { startPaymentNotifications } from './js/realtime.js';
             '</aside>' +
             // Main
             '<main class="perfil-main">' +
-              tabPerfil(displayName, email, age) +
+              tabPerfil(displayName, email, age, profile) +
               tabMembresia(activeMembership, pendingPayments) +
               tabPlanes(plans) +
               tabHistorial(payments) +
@@ -494,7 +496,9 @@ import { startPaymentNotifications } from './js/realtime.js';
     }
   }
 
-  function tabPerfil(displayName, email, age) {
+  function tabPerfil(displayName, email, age, profile) {
+    var phone = (profile && profile.phone) || '';
+    var promoOptIn = !!(profile && profile.promo_opt_in);
     return '<div class="perfil-tab-content active" id="perfil-tab">' +
       '<div class="perfil-card">' +
         '<h3><i class="ph ph-user-circle"></i> Información Personal</h3>' +
@@ -512,7 +516,83 @@ import { startPaymentNotifications } from './js/realtime.js';
               '</div>') +
         '</div>' +
       '</div>' +
+
+      // Teléfono de contacto (opcional)
+      '<div class="perfil-card" style="margin-top:var(--sp-3);">' +
+        '<h3><i class="ph ph-device-mobile"></i> Teléfono de contacto</h3>' +
+        '<p class="form-note" style="color:var(--gris-300);margin-top:var(--sp-1);">Opcional. Lo usamos para contactarte. Solo te enviaremos promociones si marcas la casilla de abajo.</p>' +
+        '<div class="perfil-age-input-group" style="flex-wrap:wrap;">' +
+          '<input type="tel" id="inputPhone" inputmode="numeric" maxlength="11" placeholder="9XXXXXXXX" value="' + phone + '" class="perfil-input" style="width:180px;" />' +
+          '<button id="btnSavePhone" class="btn btn--primary">Guardar</button>' +
+        '</div>' +
+        '<label style="display:flex;align-items:center;gap:var(--sp-1);margin-top:var(--sp-2);color:var(--gris-300);font-size:0.9rem;cursor:pointer;">' +
+          '<input type="checkbox" id="inputPromo"' + (promoOptIn ? ' checked' : '') + ' /> Quiero recibir promociones de Poder Jota en este número' +
+        '</label>' +
+        '<p id="phoneMsg" class="form-note" style="margin-top:var(--sp-1);"></p>' +
+      '</div>' +
+
+      // Cambiar contraseña
+      '<div class="perfil-card" style="margin-top:var(--sp-3);">' +
+        '<h3><i class="ph ph-lock-key"></i> Cambiar contraseña</h3>' +
+        '<form id="formPassword" style="margin-top:var(--sp-2);display:grid;gap:var(--sp-1);" autocomplete="on">' +
+          '<input type="password" id="inputPassCurrent" placeholder="Contraseña actual" autocomplete="current-password" required class="perfil-input" style="width:100%;" />' +
+          '<input type="password" id="inputPassNew" placeholder="Nueva contraseña (mínimo 8 caracteres)" autocomplete="new-password" minlength="8" required class="perfil-input" style="width:100%;" />' +
+          '<input type="password" id="inputPassConfirm" placeholder="Repite la nueva contraseña" autocomplete="new-password" minlength="8" required class="perfil-input" style="width:100%;" />' +
+          '<div><button type="submit" id="btnSavePass" class="btn btn--primary">Actualizar contraseña</button></div>' +
+          '<p id="passMsg" class="form-note"></p>' +
+        '</form>' +
+      '</div>' +
     '</div>';
+  }
+
+  function setupAccountForms(userId) {
+    var btnPhone = document.getElementById('btnSavePhone');
+    if (btnPhone) {
+      btnPhone.addEventListener('click', async function () {
+        var msg = document.getElementById('phoneMsg');
+        var phone = document.getElementById('inputPhone').value;
+        var promo = document.getElementById('inputPromo').checked;
+        btnPhone.disabled = true;
+        try {
+          await updatePhone(userId, phone, promo);
+          msg.style.color = 'var(--lima-voltio)';
+          msg.textContent = '✓ Teléfono guardado.';
+        } catch (e) {
+          msg.style.color = 'var(--error)';
+          msg.textContent = e.message || 'No se pudo guardar el teléfono.';
+        } finally {
+          btnPhone.disabled = false;
+        }
+      });
+    }
+
+    var formPass = document.getElementById('formPassword');
+    if (formPass) {
+      formPass.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var msg = document.getElementById('passMsg');
+        var current = document.getElementById('inputPassCurrent').value;
+        var next = document.getElementById('inputPassNew').value;
+        var confirm = document.getElementById('inputPassConfirm').value;
+        msg.style.color = 'var(--error)';
+        if (next.length < 8) { msg.textContent = 'La nueva contraseña debe tener al menos 8 caracteres.'; return; }
+        if (next !== confirm) { msg.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
+        if (next === current) { msg.textContent = 'La nueva contraseña debe ser distinta a la actual.'; return; }
+
+        var btn = document.getElementById('btnSavePass');
+        btn.disabled = true;
+        try {
+          await changePassword(current, next);
+          formPass.reset();
+          msg.style.color = 'var(--lima-voltio)';
+          msg.textContent = '✓ Contraseña actualizada.';
+        } catch (err) {
+          msg.textContent = err.message || 'No se pudo cambiar la contraseña.';
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    }
   }
 
   function tabMembresia(membership, pendingPayments) {
