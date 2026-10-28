@@ -1,5 +1,17 @@
 # 🚀 Plan: Login, Membresías y Pagos — Poder Jota
 
+> **⚠️ Actualización (28/10/2026):** el stack dejó Supabase y ahora corre en
+> **Neon** — Postgres para los datos, **Neon Auth** (Better Auth gestionado) para
+> el login y el **Data API** con RLS para las consultas desde el navegador.
+>
+> - Esquema vigente y políticas RLS: `db/migrations/001_init.sql`
+> - Cliente: `js/neon.js` (`@neondatabase/neon-js`)
+> - Configuración de servicios: `neon.ts`
+>
+> Todo lo que este documento diga sobre Supabase (FASE 1, snippets de la FASE 3,
+> edge functions, `js/supabase.js`) **ya no aplica**. Se mantiene por contexto:
+> los requisitos de producto (membresías, Mercado Pago, Yape) siguen vigentes.
+
 ## Resumen del proyecto actual
 
 - **Stack**: HTML estático multi-página con Vite, CSS custom properties, Vanilla JS
