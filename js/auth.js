@@ -188,15 +188,9 @@ export async function initUserMenu() {
     // No hay sesión: mostrar "Ingresar"
     const loginLink = document.createElement('a');
     loginLink.href = 'login.html';
-    loginLink.className = 'nav__user-btn';
+    loginLink.className = 'nav__user-btn nav__cta--shine';
     loginLink.textContent = 'Ingresar';
-    // Insertar antes del nav__cta--shine (Contacto)
-    const cta = navLinks.querySelector('.nav__cta--shine');
-    if (cta) {
-      navLinks.insertBefore(loginLink, cta);
-    } else {
-      navLinks.appendChild(loginLink);
-    }
+    navLinks.appendChild(loginLink);
     return;
   }
 
