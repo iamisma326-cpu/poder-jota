@@ -109,7 +109,7 @@
 
   <script type="module">
     import { getNeon, getSession } from './js/neon.js';
-    import { registerWithEmail, initUserMenu } from './js/auth.js';
+    import { registerWithEmail, loginWithEmail, initUserMenu } from './js/auth.js';
 
     // Redirigir si ya hay sesión
     (async () => {
@@ -168,6 +168,18 @@
 
       try {
         await registerWithEmail(email, password, fullName, age);
+
+        // Iniciar sesión automáticamente y llevar al perfil
+        try {
+          await loginWithEmail(email, password);
+          btn.textContent = '✓ Cuenta creada';
+          window.location.href = 'perfil.html';
+          return;
+        } catch (loginErr) {
+          // Si no se pudo iniciar sesión (p. ej. falta verificar el correo),
+          // se muestra el mensaje de confirmación normal.
+        }
+
         // Mostrar mensaje de confirmación
         errorEl.style.display = 'block';
         errorEl.style.background = 'rgba(46,125,50,0.15)';
