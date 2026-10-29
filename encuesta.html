@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encuesta de bienvenida — Poder Jota</title>
+  <meta name="description" content="Cuéntanos tus objetivos para preparar tu asesoría gratuita en Poder Jota." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/animaciones.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" />
+  <!-- Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <style>
+    .survey-block { margin-top: var(--sp-3); }
+    .survey-block[hidden] { display: none; }
+    .survey-q { margin-top: var(--sp-2); }
+    .survey-q > label, .survey-q > .survey-q__label {
+      display: block; font-weight: 600; color: var(--crema-andina); margin-bottom: var(--sp-1);
+    }
+    .survey-opts { display: grid; gap: 6px; }
+    .survey-opts label {
+      display: flex; align-items: center; gap: var(--sp-1);
+      color: var(--gris-300); cursor: pointer; font-size: 0.95rem;
+    }
+    .survey-q select, .survey-q textarea {
+      width: 100%; background: var(--negro); color: var(--crema-andina);
+      border: 1px solid rgba(243,237,225,0.15); border-radius: var(--radius-sm);
+      padding: 0.7rem 1rem; font: inherit;
+    }
+    .survey-q textarea { min-height: 80px; resize: vertical; }
+    .survey-q select:focus, .survey-q textarea:focus { border-color: var(--lima-voltio); outline: none; }
+    .survey-block__title {
+      font-family: var(--font-display, inherit); color: var(--amarillo-oro);
+      text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body class="auth-body">
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="brand" aria-label="Poder Jota, inicio">
+        <img class="brand__logo" src="https://res.cloudinary.com/dfsc2cv8f/image/upload/v1782189343/logop_ihqnik.png" alt="Logo Poder Jota" width="42" height="42" />
+        <span>Poder<b>Jota</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="perfil.html">Mi Perfil</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="auth-main">
+    <div class="perfil-card" style="max-width:640px;width:100%;margin-top:var(--sp-5);">
+      <div id="surveyApp">
+        <p class="lead" style="text-align:center;">Cargando...</p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { getSession } from './js/neon.js';
+    import { SURVEY, getMySurvey, saveSurvey } from './js/citas.js';
+
+    var app = document.getElementById('surveyApp');
+
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    }); }
+
+    function renderQuestion(q) {
+      if (q.type === 'checkbox' || q.type === 'radio') {
+        return '<div class="survey-q"><span class="survey-q__label">' + esc(q.label) + '</span>' +
+          '<div class="survey-opts">' +
+            q.options.map(function (o) {
+              return '<label><input type="' + q.type + '" name="' + q.key + '" value="' + o[0] + '" /> ' + esc(o[1]) + '</label>';
+            }).join('') +
+          '</div></div>';
+      }
+      var head = '<label for="' + q.key + '">' + esc(q.label) + '</label>';
+      if (q.type === 'select') {
+        return '<div class="survey-q">' + head +
+          '<select id="' + q.key + '" name="' + q.key + '"><option value="">Elige una opción</option>' +
+            q.options.map(function (o) { return '<option value="' + o[0] + '">' + esc(o[1]) + '</option>'; }).join('') +
+          '</select></div>';
+      }
+      return '<div class="survey-q">' + head +
+        '<textarea id="' + q.key + '" name="' + q.key + '" maxlength="500" placeholder="Opcional"></textarea></div>';
+    }
+
+    function renderForm() {
+      var general = SURVEY.filter(function (q) { return q.area === 'general'; });
+      var areas = [
+        { id: 'fitness', title: 'Fitness' },
+        { id: 'futbol', title: 'Fútbol' },
+        { id: 'campus', title: 'Campus' },
+      ];
+      app.innerHTML =
+        '<div style="text-align:center;">' +
+          '<span class="eyebrow">Paso único</span>' +
+          '<h1 class="display h2" style="margin-top:var(--sp-1);">Cuéntanos sobre ti</h1>' +
+          '<p class="lead" style="margin-top:var(--sp-1);font-size:0.95rem;">Con tus respuestas preparamos tu asesoría gratuita.</p>' +
+        '</div>' +
+        '<form id="surveyForm" style="margin-top:var(--sp-3);">' +
+          renderQuestion(general[0]) +
+          areas.map(function (a) {
+            return '<div class="survey-block" data-area="' + a.id + '" hidden>' +
+              '<div class="survey-block__title">' + a.title + '</div>' +
+              SURVEY.filter(function (q) { return q.area === a.id; }).map(renderQuestion).join('') +
+            '</div>';
+          }).join('') +
+          '<p id="surveyError" class="auth-error" style="display:none;margin-top:var(--sp-2);"></p>' +
+          '<button type="submit" class="btn btn--primary auth-submit" id="btnSurvey" style="margin-top:var(--sp-3);width:100%;">Guardar respuestas</button>' +
+        '</form>';
+
+      function syncAreas() {
+        var picked = Array.prototype.map.call(
+          app.querySelectorAll('input[name="intereses"]:checked'), function (i) { return i.value; });
+        areas.forEach(function (a) {
+          var block = app.querySelector('[data-area="' + a.id + '"]');
+          block.hidden = picked.indexOf(a.id) === -1;
+        });
+      }
+      app.querySelectorAll('input[name="intereses"]').forEach(function (i) {
+        i.addEventListener('change', syncAreas);
+      });
+      syncAreas();
+
+      document.getElementById('surveyForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var errEl = document.getElementById('surveyError');
+        var btn = document.getElementById('btnSurvey');
+        errEl.style.display = 'none';
+
+        var raw = {};
+        SURVEY.forEach(function (q) {
+          if (q.type === 'checkbox') {
+            raw[q.key] = Array.prototype.map.call(
+              app.querySelectorAll('input[name="' + q.key + '"]:checked'), function (i) { return i.value; });
+          } else if (q.type === 'radio') {
+            var checked = app.querySelector('input[name="' + q.key + '"]:checked');
+            raw[q.key] = checked ? checked.value : '';
+          } else {
+            var el = document.getElementById(q.key);
+            raw[q.key] = el ? el.value : '';
+          }
+        });
+
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+        try {
+          var session = await getSession();
+          if (!session) { window.location.href = 'login.html?redirect=encuesta.html'; return; }
+          await saveSurvey(session.user.id, raw);
+          renderDone();
+        } catch (err) {
+          errEl.textContent = err.message || 'No se pudo guardar. Intenta de nuevo.';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Guardar respuestas';
+        }
+      });
+    }
+
+    function renderDone() {
+      app.innerHTML =
+        '<div style="text-align:center;">' +
+          '<i class="ph ph-check-circle" style="font-size:3rem;color:var(--lima-voltio);"></i>' +
+          '<h1 class="display h2" style="margin-top:var(--sp-2);">¡Listo!</h1>' +
+          '<p class="lead" style="margin-top:var(--sp-1);font-size:0.95rem;">Ya puedes agendar tu asesoría gratuita por Meet o Zoom.</p>' +
+          '<a href="perfil.html#asesoria" class="btn btn--primary" style="margin-top:var(--sp-3);">Agendar cita</a>' +
+        '</div>';
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      var session = await getSession();
+      if (!session) {
+        window.location.href = 'login.html?redirect=encuesta.html';
+        return;
+      }
+      try {
+        var existing = await getMySurvey(session.user.id);
+        if (existing) { renderDone(); return; }
+      } catch (e) {
+        app.innerHTML = '<p class="lead" style="text-align:center;color:var(--error);">No se pudo cargar la encuesta. Recarga la página.</p>';
+        return;
+      }
+      renderForm();
+    });
+  </script>
+</body>
+</html>

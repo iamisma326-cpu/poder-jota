@@ -64,6 +64,7 @@
 import { getNeon } from './js/neon.js';
 import { startPaymentNotifications } from './js/realtime.js';
 import { updatePhone, changePassword } from './js/auth.js';
+import { getMySurvey, listMyAppointments, requestAppointment } from './js/citas.js';
 
 (function () {
   'use strict';
@@ -400,6 +401,20 @@ import { updatePhone, changePassword } from './js/auth.js';
     try { payments = await getPaymentHistory(user.id); } catch (e) {}
     try { pendingPayments = await getPendingPayments(user.id); } catch (e) {}
 
+    // La encuesta es obligatoria para usuarios normales (el admin no la necesita)
+    var mySurvey = null;
+    var surveyLoaded = false;
+    try {
+      mySurvey = await getMySurvey(user.id);
+      surveyLoaded = true;
+    } catch (e) {}
+    if (surveyLoaded && !mySurvey && !isAdmin(user.email)) {
+      window.location.href = 'encuesta.html';
+      return;
+    }
+    var appointments = [];
+    try { appointments = await listMyAppointments(user.id); } catch (e) {}
+
     // Contar todos los pagos pendientes (solo admins)
     if (isAdmin(user.email)) {
       try {
@@ -410,14 +425,15 @@ import { updatePhone, changePassword } from './js/auth.js';
       setupRealtimeNotif();
     }
 
-    renderPerfil(user, profile, activeMembership, plans || [], payments || [], pendingPayments || [], _pendingAdminCount);
+    renderPerfil(user, profile, activeMembership, plans || [], payments || [], pendingPayments || [], _pendingAdminCount, mySurvey, appointments);
     setupPaymentButtons();
     setupTabs();
     setupAgeForm(user.id);
     setupAccountForms(user.id);
+    setupAsesoriaForm(user.id, mySurvey);
   }
 
-  function renderPerfil(user, profile, activeMembership, plans, payments, pendingPayments, _pendingAdminCount) {
+  function renderPerfil(user, profile, activeMembership, plans, payments, pendingPayments, _pendingAdminCount, mySurvey, appointments) {
     _pendingAdminCount = _pendingAdminCount || 0;
     var displayName = (user.user_metadata && user.user_metadata.full_name) || (profile && profile.full_name) || user.email.split('@')[0] || 'Usuario';
     var avatarUrl = user.user_metadata && user.user_metadata.avatar_url;
@@ -455,6 +471,7 @@ import { updatePhone, changePassword } from './js/auth.js';
                   '<button class="perfil-tab-btn" data-tab="membresia-tab"><i class="ph ph-crown"></i> Mi Membresía' +
                     memBadge +
                   '</button>' +
+                  '<button class="perfil-tab-btn" data-tab="asesoria-tab"><i class="ph ph-video-camera"></i> Asesoría gratis</button>' +
                   '<button class="perfil-tab-btn" data-tab="planes-tab"><i class="ph ph-shopping-bag-open"></i> Comprar Membresía</button>' +
                   '<button class="perfil-tab-btn" data-tab="historial-tab"><i class="ph ph-clock"></i> Historial</button>' +
                   (isAdmin(email) ? '<button class="perfil-tab-btn" id="btnGoAdmin" style="border-color:rgba(198,255,61,0.15);"><i class="ph ph-shield-check" style="color:var(--lima-voltio);"></i> <span style="color:var(--lima-voltio);">Admin Panel</span>' + (_pendingAdminCount > 0 ? ' <span class="perfil-badge" style="background:rgba(249,168,37,0.15);color:var(--warning);font-size:0.7rem;">' + _pendingAdminCount + '</span>' : '') + '</button>' : '') +
@@ -466,6 +483,7 @@ import { updatePhone, changePassword } from './js/auth.js';
             '<main class="perfil-main">' +
               tabPerfil(displayName, email, age, profile) +
               tabMembresia(activeMembership, pendingPayments) +
+              tabAsesoria(mySurvey, appointments || []) +
               tabPlanes(plans) +
               tabHistorial(payments) +
             '</main>' +
@@ -751,6 +769,104 @@ import { updatePhone, changePassword } from './js/auth.js';
         var el = document.getElementById(tabId);
         if (el) el.classList.add('active');
       });
+    });
+    // Enlace directo desde la encuesta: perfil.html#asesoria
+    if (window.location.hash === '#asesoria') {
+      var asesoriaBtn = document.querySelector('[data-tab="asesoria-tab"]');
+      if (asesoriaBtn) asesoriaBtn.click();
+    }
+  }
+
+  // ---------- Asesoría gratis (citas por Meet/Zoom) ----------
+  var APPT_STATUS = {
+    pendiente: ['Pendiente de confirmación', 'var(--warning)'],
+    confirmada: ['Confirmada', 'var(--lima-voltio)'],
+    realizada: ['Realizada', 'var(--gris-300)'],
+    cancelada: ['Cancelada', 'var(--error)'],
+  };
+
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function tabAsesoria(survey, appointments) {
+    var form;
+    if (!survey) {
+      form = '<p style="color:var(--gris-300);">Completa la encuesta de bienvenida para agendar tu asesoría.</p>' +
+        '<a href="encuesta.html" class="btn btn--primary" style="margin-top:var(--sp-2);">Ir a la encuesta</a>';
+    } else {
+      form =
+        '<p style="color:var(--gris-300);font-size:0.95rem;">Asesoría personalizada <strong style="color:var(--lima-voltio);">gratis</strong> de 30 minutos por Meet o Zoom. Propón el día y la hora que te convengan; te confirmaremos con el enlace.</p>' +
+        '<div class="perfil-field" style="margin-top:var(--sp-2);"><label for="apptWhen">Fecha y hora preferidas</label>' +
+          '<input type="datetime-local" id="apptWhen" class="perfil-input" style="width:100%;" /></div>' +
+        '<div class="perfil-field"><label for="apptChannel">Plataforma</label>' +
+          '<select id="apptChannel" class="perfil-input" style="width:100%;">' +
+            '<option value="meet">Google Meet</option><option value="zoom">Zoom</option>' +
+          '</select></div>' +
+        '<div class="perfil-field"><label for="apptNotes">Comentario (opcional)</label>' +
+          '<textarea id="apptNotes" maxlength="500" class="perfil-input" style="width:100%;min-height:70px;"></textarea></div>' +
+        '<div style="margin-top:var(--sp-2);"><button id="btnRequestAppt" class="btn btn--primary">Solicitar cita</button></div>' +
+        '<p id="apptMsg" class="form-note" style="margin-top:var(--sp-1);"></p>';
+    }
+
+    var list = '';
+    if (appointments.length) {
+      list = '<div style="margin-top:var(--sp-3);"><h4 style="margin-bottom:var(--sp-1);">Mis citas</h4>' +
+        appointments.map(function (a) {
+          var st = APPT_STATUS[a.status] || [a.status, 'var(--gris-300)'];
+          var when = new Date(a.preferred_at).toLocaleString('es-PE', { dateStyle: 'medium', timeStyle: 'short' });
+          var link = (a.status === 'confirmada' && a.meeting_url)
+            ? ' · <a href="' + escHtml(a.meeting_url) + '" target="_blank" rel="noopener" style="color:var(--lima-voltio);">Entrar a la reunión</a>'
+            : '';
+          return '<div class="perfil-field" style="border-top:1px solid rgba(243,237,225,0.08);padding-top:var(--sp-1);">' +
+            '<p>' + when + ' · ' + (a.channel === 'zoom' ? 'Zoom' : 'Google Meet') + '</p>' +
+            '<p style="font-size:0.85rem;color:' + st[1] + ';">' + st[0] + link + '</p>' +
+          '</div>';
+        }).join('') + '</div>';
+    }
+
+    return '<div class="perfil-tab-content" id="asesoria-tab">' +
+      '<div class="perfil-card">' +
+        '<h3><i class="ph ph-video-camera"></i> Asesoría gratis</h3>' +
+        form + list +
+      '</div>' +
+    '</div>';
+  }
+
+  function setupAsesoriaForm(userId, survey) {
+    var btn = document.getElementById('btnRequestAppt');
+    if (!btn || !survey) return;
+
+    // Mínimo: dentro de 2 horas (hora local); máximo: 60 días
+    var min = new Date(Date.now() + 2 * 3600 * 1000);
+    min.setMinutes(min.getMinutes() - min.getTimezoneOffset());
+    var max = new Date(Date.now() + 60 * 86400 * 1000);
+    max.setMinutes(max.getMinutes() - max.getTimezoneOffset());
+    var whenInput = document.getElementById('apptWhen');
+    whenInput.min = min.toISOString().slice(0, 16);
+    whenInput.max = max.toISOString().slice(0, 16);
+
+    btn.addEventListener('click', async function () {
+      var msg = document.getElementById('apptMsg');
+      var when = document.getElementById('apptWhen').value;
+      msg.style.color = 'var(--error)';
+      if (!when) { msg.textContent = 'Elige una fecha y hora.'; return; }
+      btn.disabled = true;
+      try {
+        await requestAppointment(userId, survey.id, {
+          preferredAt: new Date(when).toISOString(),
+          channel: document.getElementById('apptChannel').value,
+          userNotes: document.getElementById('apptNotes').value,
+        });
+        msg.style.color = 'var(--lima-voltio)';
+        msg.textContent = '✓ Cita solicitada. Te confirmaremos con el enlace.';
+        setTimeout(function () { window.location.reload(); }, 1200);
+      } catch (err) {
+        msg.textContent = err.message || 'No se pudo agendar la cita.';
+        btn.disabled = false;
+      }
     });
   }
 

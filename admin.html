@@ -435,6 +435,131 @@
       color: var(--lima-voltio);
       border-color: rgba(198,255,61,0.3);
     }
+    .appt-list {
+      display: grid;
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-4);
+    }
+    .appt-card {
+      background: var(--gris-900);
+      border: 1px solid rgba(243,237,225,0.08);
+      border-radius: var(--radius);
+      padding: var(--sp-3);
+    }
+    .appt-card__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+    }
+    .appt-card__head strong {
+      color: var(--crema-andina);
+      display: block;
+    }
+    .appt-card__head span {
+      color: var(--gris-500);
+      font-size: 0.8rem;
+    }
+    .appt-card__meta {
+      display: flex;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+      margin-top: var(--sp-2);
+      color: var(--gris-300);
+      font-size: 0.85rem;
+    }
+    .appt-card__meta i {
+      color: var(--lima-voltio);
+      margin-right: 4px;
+    }
+    .appt-badge {
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1px solid currentColor;
+      white-space: nowrap;
+    }
+    .appt-detail {
+      margin-top: var(--sp-2);
+      border-top: 1px solid rgba(243,237,225,0.08);
+      padding-top: var(--sp-2);
+    }
+    .appt-detail summary {
+      cursor: pointer;
+      color: var(--lima-voltio);
+      font-weight: 700;
+      font-size: 0.82rem;
+      list-style: none;
+    }
+    .appt-detail summary::-webkit-details-marker {
+      display: none;
+    }
+    .appt-detail summary::before {
+      content: '+ ';
+    }
+    .appt-detail[open] summary::before {
+      content: '− ';
+    }
+    .appt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--sp-3);
+      margin-top: var(--sp-2);
+    }
+    .appt-grid h5 {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      color: var(--amarillo-oro);
+      margin-bottom: var(--sp-1);
+    }
+    .appt-survey {
+      display: grid;
+      gap: 2px;
+      font-size: 0.8rem;
+    }
+    .appt-survey dt {
+      color: var(--gris-500);
+      font-weight: 600;
+    }
+    .appt-survey dd {
+      margin: 0 0 6px;
+      color: var(--gris-300);
+    }
+    .appt-form label {
+      display: block;
+      color: var(--gris-500);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .appt-form select,
+    .appt-form input,
+    .appt-form textarea {
+      width: 100%;
+      background: var(--negro);
+      color: var(--crema-andina);
+      border: 1px solid rgba(243,237,225,0.15);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.75rem;
+      font: inherit;
+      font-size: 0.85rem;
+      margin-bottom: var(--sp-2);
+    }
+    .appt-form textarea {
+      min-height: 64px;
+      resize: vertical;
+    }
+    .appt-form select:focus,
+    .appt-form input:focus,
+    .appt-form textarea:focus {
+      border-color: var(--lima-voltio);
+      outline: none;
+    }
     .admin-export-btn {
       display: inline-flex;
       align-items: center;
@@ -565,6 +690,7 @@
 
 import { getNeon } from './js/neon.js';
 import { startPaymentNotifications } from './js/realtime.js';
+import { SURVEY, answerLabel, listAllAppointments, updateAppointment } from './js/citas.js';
 
 (function () {
   'use strict';
@@ -583,6 +709,8 @@ import { startPaymentNotifications } from './js/realtime.js';
   var _weeklyPayments = 0;
   var _weeklyIncome = 0;
   var _totalUsers = 0;
+  var _allAppointments = [];
+  var _apptFilter = 'pendiente';
 
   function getClient() {
     if (!sbClient) sbClient = getNeon();
@@ -680,6 +808,14 @@ import { startPaymentNotifications } from './js/realtime.js';
       .eq('active', true)
       .gte('end_date', new Date().toISOString());
 
+    // Citas de asesoría (el admin ve todas por RLS)
+    try {
+      _allAppointments = await listAllAppointments();
+    } catch (apptError) {
+      console.error('Error fetching appointments:', apptError);
+      _allAppointments = [];
+    }
+
     // Calcular estadísticas
     _allPayments = allPayments || [];
     var pendingTotal = _allPayments.filter(function (p) { return p.status === 'pending'; });
@@ -749,7 +885,7 @@ import { startPaymentNotifications } from './js/realtime.js';
           '<div class="section-head">' +
             '<span class="eyebrow">Admin</span>' +
             '<h2 class="display h1">Panel de Administración</h2>' +
-            '<p class="lead">Gestiona los pagos y membresías de los usuarios.</p>' +
+            '<p class="lead">Gestiona pagos, membresías y citas de asesoría.</p>' +
           '</div>' +
 
           // Resumen semanal
@@ -760,6 +896,10 @@ import { startPaymentNotifications } from './js/realtime.js';
             '<div class="admin-stat-card admin-stat-card--warning">' +
               '<div class="admin-stat-card__num">' + _allPayments.filter(function(p){return p.status==='pending';}).length + '</div>' +
               '<div class="admin-stat-card__label">Pendientes</div>' +
+            '</div>' +
+            '<div class="admin-stat-card admin-stat-card--warning">' +
+              '<div class="admin-stat-card__num">' + _allAppointments.filter(function(a){return a.status==='pendiente';}).length + '</div>' +
+              '<div class="admin-stat-card__label">Citas pendientes</div>' +
             '</div>' +
             '<div class="admin-stat-card admin-stat-card--success">' +
               '<div class="admin-stat-card__num">' + _allActiveCount + '</div>' +
@@ -774,6 +914,9 @@ import { startPaymentNotifications } from './js/realtime.js';
               '<div class="admin-stat-card__label">Total pagos</div>' +
             '</div>' +
           '</div>' +
+
+          // Citas de asesoría
+          renderAppointmentsSection() +
 
           // Gráfico de ingresos mensuales
           renderIncomeChart() +
@@ -821,6 +964,125 @@ import { startPaymentNotifications } from './js/realtime.js';
   function renderStatusBtn(value, label) {
     var active = _filterStatus === value ? ' admin-status-btn--active' : '';
     return '<button class="admin-status-btn' + active + '" data-status="' + value + '">' + label + '</button>';
+  }
+
+  // ---------- Citas de asesoría ----------
+  var APPT_STATUS = {
+    pendiente: { label: 'Pendiente', color: 'var(--warning)' },
+    confirmada: { label: 'Confirmada', color: 'var(--lima-voltio)' },
+    realizada: { label: 'Realizada', color: 'var(--gris-300)' },
+    cancelada: { label: 'Cancelada', color: 'var(--error)' },
+  };
+
+  function escHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function renderApptFilterBtn(value, label) {
+    var active = _apptFilter === value ? ' admin-status-btn--active' : '';
+    return '<button class="admin-status-btn appt-filter-btn' + active + '" data-appt-status="' + value + '">' + label + '</button>';
+  }
+
+  function renderAppointmentsSection() {
+    var filtered = _apptFilter === 'todos'
+      ? _allAppointments
+      : _allAppointments.filter(function (a) { return a.status === _apptFilter; });
+
+    var counts = { pendiente: 0, confirmada: 0, realizada: 0, cancelada: 0 };
+    _allAppointments.forEach(function (a) {
+      if (counts[a.status] != null) counts[a.status]++;
+    });
+
+    var body;
+    if (filtered.length === 0) {
+      body = '<div class="admin-empty"><p>' +
+        (_apptFilter === 'todos' ? 'Aún no hay citas solicitadas.' : 'No hay citas con este estado.') +
+        '</p></div>';
+    } else {
+      body = '<div class="appt-list">' + filtered.map(renderAppointmentCard).join('') + '</div>';
+    }
+
+    return '<div class="admin-section-title" style="margin-top:0;">' +
+        '<i class="ph ph-video-camera"></i> Citas de asesoría ' +
+        '<span style="font-family:var(--font-body);font-size:0.8rem;color:var(--gris-500);">(' + _allAppointments.length + ')</span>' +
+      '</div>' +
+      '<p class="lead" style="font-size:0.9rem;margin-bottom:var(--sp-2);">El usuario propone fecha y hora. Confirma la cita y pega el enlace de Meet o Zoom.</p>' +
+      '<div class="admin-status-filters">' +
+        renderApptFilterBtn('pendiente', '⏳ Pendientes (' + counts.pendiente + ')') +
+        renderApptFilterBtn('confirmada', '✓ Confirmadas (' + counts.confirmada + ')') +
+        renderApptFilterBtn('realizada', 'Realizadas (' + counts.realizada + ')') +
+        renderApptFilterBtn('cancelada', '✕ Canceladas (' + counts.cancelada + ')') +
+        renderApptFilterBtn('todos', 'Todas (' + _allAppointments.length + ')') +
+      '</div>' +
+      body;
+  }
+
+  function renderAppointmentCard(a) {
+    var profile = a.profiles || {};
+    var survey = Array.isArray(a.survey_responses) ? a.survey_responses[0] : a.survey_responses;
+    var st = APPT_STATUS[a.status] || { label: a.status, color: 'var(--gris-300)' };
+    var name = profile.full_name || 'Usuario';
+    var email = profile.email || '—';
+    var phone = profile.phone || '';
+    var when = new Date(a.preferred_at).toLocaleString('es-PE', { dateStyle: 'medium', timeStyle: 'short' });
+    var channel = a.channel === 'zoom' ? 'Zoom' : 'Google Meet';
+    var contact = escHtml(email) + (phone ? ' · ' + escHtml(phone) : '');
+
+    var statusOptions = ['pendiente', 'confirmada', 'realizada', 'cancelada'].map(function (value) {
+      return '<option value="' + value + '"' + (a.status === value ? ' selected' : '') + '>' +
+        (APPT_STATUS[value] ? APPT_STATUS[value].label : value) + '</option>';
+    }).join('');
+
+    return '<article class="appt-card">' +
+      '<div class="appt-card__head">' +
+        '<div><strong>' + escHtml(name) + '</strong><span>' + contact + '</span></div>' +
+        '<span class="appt-badge" style="color:' + st.color + ';">' + escHtml(st.label) + '</span>' +
+      '</div>' +
+      '<div class="appt-card__meta">' +
+        '<span><i class="ph ph-calendar-blank"></i>' + escHtml(when) + '</span>' +
+        '<span><i class="ph ph-video-camera"></i>' + channel + '</span>' +
+        (a.user_notes ? '<span><i class="ph ph-chat-text"></i>' + escHtml(a.user_notes) + '</span>' : '') +
+      '</div>' +
+      '<details class="appt-detail">' +
+        '<summary>Ver encuesta y gestionar</summary>' +
+        '<div class="appt-grid">' +
+          '<div>' +
+            '<h5>Encuesta de bienvenida</h5>' +
+            renderSurveyAnswers(survey) +
+          '</div>' +
+          '<div class="appt-form">' +
+            '<h5>Gestión de la cita</h5>' +
+            '<label for="apptStatus-' + a.id + '">Estado</label>' +
+            '<select id="apptStatus-' + a.id + '">' + statusOptions + '</select>' +
+            '<label for="apptUrl-' + a.id + '">Enlace de Meet o Zoom</label>' +
+            '<input type="url" id="apptUrl-' + a.id + '" placeholder="https://meet.google.com/..." value="' + escHtml(a.meeting_url || '') + '" />' +
+            '<label for="apptNotes-' + a.id + '">Notas internas</label>' +
+            '<textarea id="apptNotes-' + a.id + '" maxlength="1000" placeholder="Detalles para el equipo...">' + escHtml(a.admin_notes || '') + '</textarea>' +
+            '<button class="admin-btn admin-btn--approve btn-save-appt" data-id="' + a.id + '">Guardar cambios</button>' +
+            (a.status === 'confirmada' && a.meeting_url
+              ? ' <a class="admin-btn admin-btn--wa" href="' + escHtml(a.meeting_url) + '" target="_blank" rel="noopener">Abrir enlace</a>'
+              : '') +
+          '</div>' +
+        '</div>' +
+      '</details>' +
+    '</article>';
+  }
+
+  function renderSurveyAnswers(survey) {
+    var answers = survey && survey.answers;
+    if (!answers) return '<p style="color:var(--gris-500);font-size:0.82rem;">Sin encuesta registrada.</p>';
+
+    var rows = '';
+    SURVEY.forEach(function (q) {
+      var value = answers[q.key];
+      if (value == null || value === '' || (Array.isArray(value) && value.length === 0)) return;
+      rows += '<dt>' + escHtml(q.label) + '</dt><dd>' + escHtml(answerLabel(q, value)) + '</dd>';
+    });
+    return rows
+      ? '<dl class="appt-survey">' + rows + '</dl>'
+      : '<p style="color:var(--gris-500);font-size:0.82rem;">Sin respuestas registradas.</p>';
   }
 
   function filterPayments(items) {
@@ -1295,10 +1557,44 @@ import { startPaymentNotifications } from './js/realtime.js';
       var inp = document.getElementById('adminSearchInput');
       if (inp) inp.focus();
     }
-    var statusBtn = e.target.closest('.admin-status-btn');
+    var apptFilterBtn = e.target.closest('.appt-filter-btn');
+    if (apptFilterBtn) {
+      _apptFilter = apptFilterBtn.getAttribute('data-appt-status') || 'pendiente';
+      renderDashboard();
+      return;
+    }
+    var statusBtn = e.target.closest('.admin-status-btn:not(.appt-filter-btn)');
     if (statusBtn) {
       _filterStatus = statusBtn.getAttribute('data-status') || 'todos';
       renderDashboard();
+    }
+  });
+
+  // ---------- Delegación de eventos para guardar citas ----------
+  document.addEventListener('click', async function (e) {
+    var saveBtn = e.target.closest('.btn-save-appt');
+    if (!saveBtn) return;
+
+    var id = saveBtn.getAttribute('data-id');
+    var statusEl = document.getElementById('apptStatus-' + id);
+    var urlEl = document.getElementById('apptUrl-' + id);
+    var notesEl = document.getElementById('apptNotes-' + id);
+    if (!statusEl) return;
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Guardando...';
+    try {
+      await updateAppointment(id, {
+        status: statusEl.value,
+        meetingUrl: urlEl ? urlEl.value : '',
+        adminNotes: notesEl ? notesEl.value : '',
+      });
+      showToast('Cita actualizada');
+      await loadAdminDashboard();
+    } catch (err) {
+      showToast(err.message || 'No se pudo actualizar la cita', true);
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Guardar cambios';
     }
   });
 
